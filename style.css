@@ -1,0 +1,34 @@
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+#tokenResult {
+    margin-top: 20px;
+    word-wrap: break-word;
+}
+
+#swipeContainer {
+    margin-top: 30px;
+    text-align: center;
+}
+
+#songCard {
+    padding: 20px;
+    border: 1px solid #ccc;
+    margin-bottom: 15px;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 5px;
+}
+
+#likedSongs {
+    margin-top: 30px;
+}
