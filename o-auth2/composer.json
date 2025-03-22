@@ -1,5 +1,6 @@
 {
     "require": {
-        "jwilsson/spotify-web-api-php": "^5.0"
+        "jwilsson/spotify-web-api-php": "^5.0",
+        "guzzlehttp/guzzle": "^7.9"
     }
 }
