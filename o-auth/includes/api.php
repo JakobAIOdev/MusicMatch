@@ -5,7 +5,7 @@ require_once 'auth.php';
 function getUserProfile() {
     $token = getValidToken();
     if (!$token) {
-        return null;
+        return ['error' => ['message' => 'No valid token']];
     }
     
     $ch = curl_init();
@@ -14,54 +14,78 @@ function getUserProfile() {
     curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $token]);
     
     $result = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+    
+    if ($httpCode >= 400) {
+        return ['error' => ['message' => 'HTTP Error ' . $httpCode]];
+    }
     
     return json_decode($result, true);
 }
 
-// Funktion zum Abrufen von Empfehlungen
-function getRecommendations($limit = 20, $seed_tracks = null, $seed_artists = null, $seed_genres = null) {
+// Funktion zum Abrufen von Empfehlungen mit verbesserter Fehlerbehandlung
+function getRecommendations($limit = 20, $seed_tracks = [], $seed_artists = [], $seed_genres = []) {
     $token = getValidToken();
     if (!$token) {
-        return null;
+        return ['error' => ['message' => 'No valid token']];
     }
     
     $params = ['limit' => $limit];
     
-    // Seed-Parameter hinzufügen, falls vorhanden
-    if ($seed_tracks) {
-        $params['seed_tracks'] = is_array($seed_tracks) ? implode(',', $seed_tracks) : $seed_tracks;
+    // Seed-Parameter hinzufügen, aber nur wenn sie nicht leer sind
+    if (!empty($seed_tracks)) {
+        $params['seed_tracks'] = is_array($seed_tracks) ? implode(',', array_slice($seed_tracks, 0, 5)) : $seed_tracks;
     }
     
-    if ($seed_artists) {
-        $params['seed_artists'] = is_array($seed_artists) ? implode(',', $seed_artists) : $seed_artists;
+    if (!empty($seed_artists)) {
+        $params['seed_artists'] = is_array($seed_artists) ? implode(',', array_slice($seed_artists, 0, 5)) : $seed_artists;
     }
     
-    if ($seed_genres) {
-        $params['seed_genres'] = is_array($seed_genres) ? implode(',', $seed_genres) : $seed_genres;
+    if (!empty($seed_genres)) {
+        $params['seed_genres'] = is_array($seed_genres) ? implode(',', array_slice($seed_genres, 0, 5)) : $seed_genres;
     }
     
-    // Wenn keine Seeds angegeben wurden, verwende einige Standard-Genres
-    if (!$seed_tracks && !$seed_artists && !$seed_genres) {
+    // Die Spotify API erfordert mindestens einen Seed-Parameter
+    // Wenn keiner angegeben wurde, verwende Standard-Genres
+    if (empty($params['seed_tracks']) && empty($params['seed_artists']) && empty($params['seed_genres'])) {
         $params['seed_genres'] = 'pop,rock,hip-hop,electronic,indie';
     }
     
+    // Einige zusätzliche Parameter für bessere Ergebnisse
+    $params['min_popularity'] = 50; // Nur beliebte Tracks
+    
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, 'https://api.spotify.com/v1/recommendations?' . http_build_query($params));
+    $url = 'https://api.spotify.com/v1/recommendations?' . http_build_query($params);
+    curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $token]);
     
     $result = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    
+    // Debugging-Information speichern
+    $curlError = curl_error($ch);
     curl_close($ch);
+    
+    if ($httpCode >= 400) {
+        return [
+            'error' => [
+                'message' => 'HTTP Error ' . $httpCode,
+                'curl_error' => $curlError,
+                'url' => $url
+            ]
+        ];
+    }
     
     return json_decode($result, true);
 }
 
-// Funktion zum Abrufen der Top-Tracks des Benutzers
+// Funktion zum Abrufen der Top-Tracks des Benutzers mit verbesserter Fehlerbehandlung
 function getUserTopTracks($limit = 5, $time_range = 'medium_term') {
     $token = getValidToken();
     if (!$token) {
-        return null;
+        return ['error' => ['message' => 'No valid token']];
     }
     
     $params = [
@@ -70,12 +94,30 @@ function getUserTopTracks($limit = 5, $time_range = 'medium_term') {
     ];
     
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, 'https://api.spotify.com/v1/me/top/tracks?' . http_build_query($params));
+    $url = 'https://api.spotify.com/v1/me/top/tracks?' . http_build_query($params);
+    curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $token]);
     
     $result = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
     curl_close($ch);
+    
+    if ($httpCode >= 400) {
+        // Try with a different time range if medium_term fails
+        if ($time_range === 'medium_term') {
+            return getUserTopTracks($limit, 'short_term');
+        }
+        
+        return [
+            'error' => [
+                'message' => 'HTTP Error ' . $httpCode,
+                'curl_error' => $curlError,
+                'url' => $url
+            ]
+        ];
+    }
     
     return json_decode($result, true);
 }
@@ -84,12 +126,12 @@ function getUserTopTracks($limit = 5, $time_range = 'medium_term') {
 function createPlaylist($name, $description = '', $public = false) {
     $token = getValidToken();
     if (!$token) {
-        return null;
+        return ['error' => ['message' => 'No valid token']];
     }
     
     $profile = getUserProfile();
-    if (!$profile || !isset($profile['id'])) {
-        return null;
+    if (!$profile || isset($profile['error']) || !isset($profile['id'])) {
+        return ['error' => ['message' => 'Could not get user profile']];
     }
     
     $user_id = $profile['id'];
@@ -111,7 +153,12 @@ function createPlaylist($name, $description = '', $public = false) {
     ]);
     
     $result = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+    
+    if ($httpCode >= 400) {
+        return ['error' => ['message' => 'HTTP Error ' . $httpCode]];
+    }
     
     return json_decode($result, true);
 }

@@ -91,6 +91,11 @@ $profile = getUserProfile();
                 <a href="profile.php" class="active">Profil</a>
                 <a href="discover.php">Entdecken</a>
                 <a href="index.php?logout=1">Abmelden</a>
+                <?php if (isset($_GET['debug'])): ?>
+                <a href="?">Debug beenden</a>
+                <?php else: ?>
+                <a href="?debug=1" style="color: #999; font-size: 0.8em;">Debug</a>
+                <?php endif; ?>
             </nav>
         </header>
         
@@ -98,7 +103,7 @@ $profile = getUserProfile();
             <section class="profile-section">
                 <h2>Dein Profil</h2>
                 
-                <?php if ($profile): ?>
+                <?php if ($profile && !isset($profile['error'])): ?>
                 <div class="profile-card">
                     <?php if (isset($profile['images']) && count($profile['images']) > 0): ?>
                     <img class="profile-image" src="<?php echo $profile['images'][0]['url']; ?>" alt="Profilbild">
@@ -118,8 +123,22 @@ $profile = getUserProfile();
                         <p>Follower: <?php echo isset($profile['followers']['total']) ? $profile['followers']['total'] : '0'; ?></p>
                     </div>
                 </div>
+                
+                <?php if (isset($_GET['debug'])): ?>
+                <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+                    <h3>Debug-Informationen</h3>
+                    <p>Access Token: <?php echo substr($_SESSION['access_token'], 0, 20) . '...'; ?></p>
+                    <p>Scopes: <?php echo $config['scopes']; ?></p>
+                    <p>Session ID: <?php echo session_id(); ?></p>
+                    <p><a href="discover.php?debug=1" class="btn-secondary">Discover mit Debug</a></p>
+                </div>
+                <?php endif; ?>
+                
                 <?php else: ?>
                 <p>Fehler beim Laden des Profils. Bitte versuche es später erneut.</p>
+                <?php if (isset($profile['error'])): ?>
+                <p>Fehler: <?php echo $profile['error']['message']; ?></p>
+                <?php endif; ?>
                 <?php endif; ?>
             </section>
         </main>
