@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spotify Web Playback SDK Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #121212;
+            color: #ffffff;
+        }
+        
+        .container {
+            background-color: #282828;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        h1, h2 {
+            color: #1DB954;
+        }
+        
+        button {
+            background-color: #1DB954;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            margin: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background-color: #1ed760;
+        }
+        
+        button:disabled {
+            background-color: #333;
+            cursor: not-allowed;
+        }
+        
+        #current-track {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        #current-track img {
+            width: 80px;
+            height: 80px;
+            margin-right: 15px;
+            border-radius: 4px;
+        }
+        
+        .track-info {
+            flex-grow: 1;
+        }
+        
+        .track-name {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .track-artist {
+            color: #b3b3b3;
+            font-size: 14px;
+        }
+        
+        #player-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        #volume-control {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        input[type="range"] {
+            width: 200px;
+        }
+        
+        #token-section {
+            margin-bottom: 20px;
+        }
+        
+        #token-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #333;
+            color: white;
+            border: 1px solid #555;
+            border-radius: 4px;
+        }
+        
+        .log {
+            background-color: #333;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            height: 150px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Spotify Web Playback SDK Test</h1>
+    
+    <div class="container" id="token-section">
+        <h2>1. Authentifizierung</h2>
+        <p>Füge deinen Spotify Access Token ein (benötigt Premium):</p>
+        <input type="text" id="token-input" placeholder="Spotify Access Token einfügen">
+        <button id="init-player">Player initialisieren</button>
+    </div>
+    
+    <div class="container">
+        <h2>2. Player Steuerung</h2>
+        <div id="current-track">
+            <p>Kein Track geladen</p>
+        </div>
+        
+        <div id="player-controls">
+            <button id="prev-button" disabled>Vorheriger</button>
+            <button id="play-button" disabled>Play</button>
+            <button id="pause-button" disabled>Pause</button>
+            <button id="next-button" disabled>Nächster</button>
+        </div>
+        
+        <div id="volume-control">
+            <label for="volume">Lautstärke:</label>
+            <input type="range" id="volume" min="0" max="100" value="50" disabled>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2>3. Suche und Abspielen</h2>
+        <p>Gib eine Spotify URI ein (z.B. spotify:track:4iV5W9uYEdYUVa79Axb7Rh):</p>
+        <input type="text" id="uri-input" placeholder="Spotify URI" style="width: 70%; padding: 10px; margin-right: 10px; background-color: #333; color: white; border: 1px solid #555; border-radius: 4px;">
+        <button id="play-uri" disabled>Abspielen</button>
+    </div>
+    
+    <div class="container">
+        <h2>4. Player Status</h2>
+        <div class="log" id="player-status">
+            Player nicht initialisiert.
+        </div>
+    </div>
+    
+    <script src="https://sdk.scdn.co/spotify-player.js"></script>
+    <script>
+        let player;
+        let deviceId;
+        let accessToken;
+        
+        // Status-Log-Funktion
+        function logStatus(message) {
+            const statusElement = document.getElementById('player-status');
+            const timestamp = new Date().toLocaleTimeString();
+            statusElement.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            statusElement.scrollTop = statusElement.scrollHeight;
+        }
+        
+        // Aktualisiere die Anzeige des aktuellen Tracks
+        function updateCurrentTrack(track) {
+            const currentTrackElement = document.getElementById('current-track');
+            
+            if (track) {
+                const artistNames = track.artists.map(artist => artist.name).join(', ');
+                currentTrackElement.innerHTML = `
+                    <img src="${track.album.images[0].url}" alt="${track.name}">
+                    <div class="track-info">
+                        <div class="track-name">${track.name}</div>
+                        <div class="track-artist">${artistNames}</div>
+                    </div>
+                `;
+            } else {
+                currentTrackElement.innerHTML = '<p>Kein Track geladen</p>';
+            }
+        }
+        
+        // Initialisiere den Spotify Player
+        window.onSpotifyWebPlaybackSDKReady = () => {
+            document.getElementById('init-player').addEventListener('click', () => {
+                accessToken = document.getElementById('token-input').value.trim();
+                
+                if (!accessToken) {
+                    alert('Bitte gib einen gültigen Access Token ein.');
+                    return;
+                }
+                
+                logStatus('Initialisiere Player mit Token...');
+                
+                player = new Spotify.Player({
+                    name: 'Web Playback SDK Test Player',
+                    getOAuthToken: cb => { cb(accessToken); },
+                    volume: 0.5
+                });
+                
+                // Error handling
+                player.addListener('initialization_error', ({ message }) => {
+                    logStatus(`Fehler bei der Initialisierung: ${message}`);
+                });
+                
+                player.addListener('authentication_error', ({ message }) => {
+                    logStatus(`Authentifizierungsfehler: ${message}`);
+                });
+                
+                player.addListener('account_error', ({ message }) => {
+                    logStatus(`Kontofehler (Premium erforderlich): ${message}`);
+                });
+                
+                player.addListener('playback_error', ({ message }) => {
+                    logStatus(`Wiedergabefehler: ${message}`);
+                });
+                
+                // Playback status updates
+                player.addListener('player_state_changed', state => {
+                    if (state) {
+                        logStatus('Wiedergabestatus geändert');
+                        updateCurrentTrack(state.track_window.current_track);
+                    }
+                });
+                
+                // Ready
+                player.addListener('ready', ({ device_id }) => {
+                    deviceId = device_id;
+                    logStatus(`Player bereit mit Device ID: ${device_id}`);
+                    
+                    // Aktiviere Steuerelemente
+                    document.getElementById('play-button').disabled = false;
+                    document.getElementById('pause-button').disabled = false;
+                    document.getElementById('prev-button').disabled = false;
+                    document.getElementById('next-button').disabled = false;
+                    document.getElementById('volume').disabled = false;
+                    document.getElementById('play-uri').disabled = false;
+                });
+                
+                // Not Ready
+                player.addListener('not_ready', ({ device_id }) => {
+                    logStatus(`Device ID ist nicht mehr bereit: ${device_id}`);
+                });
+                
+                // Connect to the player
+                player.connect();
+            });
+            
+            // Player-Steuerung
+            document.getElementById('play-button').addEventListener('click', () => {
+                player.resume().then(() => {
+                    logStatus('Wiedergabe gestartet');
+                });
+            });
+            
+            document.getElementById('pause-button').addEventListener('click', () => {
+                player.pause().then(() => {
+                    logStatus('Wiedergabe pausiert');
+                });
+            });
+            
+            document.getElementById('prev-button').addEventListener('click', () => {
+                player.previousTrack().then(() => {
+                    logStatus('Vorheriger Track');
+                });
+            });
+            
+            document.getElementById('next-button').addEventListener('click', () => {
+                player.nextTrack().then(() => {
+                    logStatus('Nächster Track');
+                });
+            });
+            
+            document.getElementById('volume').addEventListener('change', (e) => {
+                const volume = e.target.value / 100;
+                player.setVolume(volume).then(() => {
+                    logStatus(`Lautstärke auf ${e.target.value}% gesetzt`);
+                });
+            });
+            
+            // URI abspielen
+            document.getElementById('play-uri').addEventListener('click', () => {
+                const uri = document.getElementById('uri-input').value.trim();
+                
+                if (!uri) {
+                    alert('Bitte gib eine gültige Spotify URI ein.');
+                    return;
+                }
+                
+                fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ uris: [uri] }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                })
+                .then(response => {
+                    if (response.status === 204) {
+                        logStatus(`Spiele URI ab: ${uri}`);
+                    } else {
+                        response.json().then(data => {
+                            logStatus(`Fehler beim Abspielen: ${JSON.stringify(data)}`);
+                        });
+                    }
+                })
+                .catch(error => {
+                    logStatus(`Netzwerkfehler: ${error}`);
+                });
+            });
+        };
+    </script>
+</body>
+</html>

@@ -10,3 +10,4 @@ unset($_SESSION['spotify_auth_state']);
 // Zurück zur Startseite
 header('Location: index.php');
 exit;
+?>      
