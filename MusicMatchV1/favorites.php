@@ -1,0 +1,123 @@
+<?php
+require 'vendor/autoload.php';
+include "config.php";
+session_start();
+
+if (!isset($_SESSION['spotify_access_token'])) {
+    header('Location: index.php');
+    exit;
+}
+
+$api = new SpotifyWebAPI\SpotifyWebAPI();
+$api->setAccessToken($_SESSION['spotify_access_token']);
+
+// Get user data for header
+try {
+    $userData = $api->me();
+} catch (Exception $e) {
+    die('Error fetching user data: ' . $e->getMessage());
+}
+
+$time_range = isset($_GET['time_range']) ? $_GET['time_range'] : 'medium_term';
+$view_type = isset($_GET['view']) ? $_GET['view'] : 'artists';
+
+$valid_ranges = ['short_term', 'medium_term', 'long_term'];
+$valid_views = ['artists', 'tracks'];
+
+if (!in_array($time_range, $valid_ranges)) {
+    $time_range = 'medium_term';
+}
+
+if (!in_array($view_type, $valid_views)) {
+    $view_type = 'artists';
+}
+
+try {
+    $topItems = $api->getMyTop($view_type, [
+        'limit' => 10,
+        'time_range' => $time_range
+    ]);
+} catch (Exception $e) {
+    die('Error fetching top ' . $view_type . ': ' . $e->getMessage());
+}
+
+// Time range descriptions
+$time_descriptions = [
+    'short_term' => 'Last 4 weeks',
+    'medium_term' => 'Last 6 months',
+    'long_term' => 'Several years'
+];
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Top <?php echo ucfirst($view_type); ?> on Spotify</title>
+    <link rel="stylesheet" type="text/css" href="./style.css">
+</head>
+<body>
+    <div class="site-header">
+        <div class="site-logo">
+            <h1>MusicMatch</h1>
+        </div>
+        <div class="nav-user-info">
+            <a href="dashboard.php" class="back-to-dashboard">Dashboard</a>
+            <a href="profile.php" class="profile-link">
+                <img src="<?php echo htmlspecialchars($userData->images[0]->url ?? 'img/default-avatar.png'); ?>" alt="Profile Picture">
+                <span><?php echo htmlspecialchars($userData->display_name); ?></span>
+            </a>
+            <a href="logout.php" class="logout-btn">Logout</a>
+        </div>
+    </div>
+    
+    <h1>Your Top <?php echo ucfirst($view_type); ?> on Spotify</h1>
+    
+    <div class="nav-wrapper">
+        <div class="view-nav">
+            <a href="?view=artists&time_range=<?php echo $time_range; ?>" class="<?php echo $view_type == 'artists' ? 'active' : ''; ?>">Artists</a>
+            <a href="?view=tracks&time_range=<?php echo $time_range; ?>" class="<?php echo $view_type == 'tracks' ? 'active' : ''; ?>">Tracks</a>
+        </div>
+        
+        <div class="time-nav">
+            <a href="?view=<?php echo $view_type; ?>&time_range=short_term" class="<?php echo $time_range == 'short_term' ? 'active' : ''; ?>">Short Term</a>
+            <a href="?view=<?php echo $view_type; ?>&time_range=medium_term" class="<?php echo $time_range == 'medium_term' ? 'active' : ''; ?>">Medium Term</a>
+            <a href="?view=<?php echo $view_type; ?>&time_range=long_term" class="<?php echo $time_range == 'long_term' ? 'active' : ''; ?>">Long Term</a>
+        </div>
+    </div>
+    
+    <p>Time Range: <strong><?php echo $time_descriptions[$time_range]; ?></strong></p>
+    
+    <div class="content-wrapper">
+        <?php if (count($topItems->items) > 0): ?>
+            <?php foreach ($topItems->items as $index => $item): ?>
+                <div class="card">
+                    <img 
+                        src="<?php echo isset($item->images[0]) ? htmlspecialchars($item->images[0]->url) : (isset($item->album->images[0]) ? htmlspecialchars($item->album->images[0]->url) : 'https://via.placeholder.com/100'); ?>" 
+                        class="image" 
+                        alt="<?php echo htmlspecialchars($item->name); ?>"
+                    >
+                    <div class="item-info">
+                        <h3><?php echo ($index + 1) . '. ' . htmlspecialchars($item->name); ?></h3>
+                        <?php if ($view_type == 'artists'): ?>
+                            <p>Genres: <?php echo implode(', ', $item->genres); ?></p>
+                            <p>Popularity: <?php echo $item->popularity; ?>/100</p>
+                        <?php else: ?>
+                            <p>Artist: <?php 
+                                $artists = array_map(function($artist) {
+                                    return htmlspecialchars($artist->name);
+                                }, $item->artists);
+                                echo implode(', ', $artists);
+                            ?></p>
+                            <p>Album: <?php echo htmlspecialchars($item->album->name); ?></p>
+                        <?php endif; ?>
+                        <a href="<?php echo $item->external_urls->spotify; ?>" target="_blank" class="spotify-link">Open on Spotify</a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p>No top <?php echo $view_type; ?> found. You might not have listened to enough music in this time range.</p>
+        <?php endif; ?>
+    </div>
+</body>
+
+<?php include "footer.php";?>
