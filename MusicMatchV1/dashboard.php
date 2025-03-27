@@ -69,10 +69,10 @@ if ($isLoggedIn) {
                 </div>
             </a>
 
-            <a href="discover.php" class="dashboard-box">
+            <a href="lastFM.php" class="dashboard-box">
                 <div class="box-content">
                     <i class="icon-discover"></i>
-                    <h2>Discover</h2>
+                    <h2>LastFM</h2>
                     <p>Find new music based on your tastes</p>
                 </div>
             </a>

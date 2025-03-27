@@ -11,7 +11,6 @@ if (!isset($_SESSION['spotify_access_token'])) {
 $api = new SpotifyWebAPI\SpotifyWebAPI();
 $api->setAccessToken($_SESSION['spotify_access_token']);
 
-// Get user data for header
 try {
     $userData = $api->me();
 } catch (Exception $e) {

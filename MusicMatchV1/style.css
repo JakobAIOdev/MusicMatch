@@ -118,6 +118,7 @@ header {
     margin-bottom: 15px;
     display: block;
     color: #228bd6;
+    font-style: normal;
 }
 
 .box-content h2 {
@@ -535,4 +536,93 @@ h1 {
 /* Ensure content is well-spaced */
 .content-wrapper {
     margin-bottom: 30px;
+}
+
+/* Last.fm Page Styles */
+.login-container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.lastfm-login-btn {
+    background: #d51007;
+}
+
+.lastfm-login-btn:hover {
+    background: #c00d06;
+}
+
+.error-message {
+    color: #d51007;
+    margin-bottom: 15px;
+    font-weight: bold;
+    padding: 10px;
+    background-color: rgba(213, 16, 7, 0.1);
+    border-radius: 5px;
+}
+
+.song-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.song-title {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.song-artist {
+    color: #666;
+}
+
+.lastfm-user-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.default-image {
+    background-color: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+}
+
+/* Ensure Last.fm items use the same card styling as other pages */
+.song-item.card {
+    margin-bottom: 15px;
 }
