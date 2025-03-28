@@ -177,6 +177,13 @@ $tracksJson = json_encode($trackData);
             overflow-y: auto;
             margin-top: 20px;
         }
+        
+        .preview-info {
+            text-align: center;
+            color: #b3b3b3;
+            font-size: 12px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -206,7 +213,11 @@ $tracksJson = json_encode($trackData);
         </div>
         <div class="time-display">
             <span id="current-time">0:00</span>
-            <span id="total-time">0:00</span>
+            <span id="total-time">0:30</span>
+        </div>
+        
+        <div class="preview-info">
+            30-Sekunden-Vorschau (startet bei ca. 30-40% des Songs)
         </div>
         
         <div id="player-controls">
@@ -236,6 +247,9 @@ $tracksJson = json_encode($trackData);
         let currentTrackIndex = 0;
         let isPlaying = false;
         let playbackTimer = null;
+        let previewDuration = 30000; // 30 Sekunden in Millisekunden
+        let currentStartPosition = 0;
+        let previewEnded = false;
         
         // Status-Log-Funktion
         function logStatus(message) {
@@ -267,7 +281,8 @@ $tracksJson = json_encode($trackData);
                     </div>
                 `;
                 
-                document.getElementById('total-time').textContent = formatTime(track.duration_ms);
+                // Setze die Gesamtzeit auf 30 Sekunden
+                document.getElementById('total-time').textContent = "0:30";
             } else {
                 currentTrackElement.innerHTML = '<p>Kein Track geladen</p>';
             }
@@ -285,16 +300,17 @@ $tracksJson = json_encode($trackData);
             
             currentTrackIndex = index;
             const track = tracks[currentTrackIndex];
+            previewEnded = false;
             
             // Berechne die Startposition bei ca. 30-40% des Songs
             const startPercentage = 0.3 + (Math.random() * 0.1); // 30-40%
-            const startPositionMs = Math.floor(track.duration_ms * startPercentage);
+            currentStartPosition = Math.floor(track.duration_ms * startPercentage);
             
             fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
                 method: 'PUT',
                 body: JSON.stringify({ 
                     uris: [track.uri],
-                    position_ms: startPositionMs
+                    position_ms: currentStartPosition
                 }),
                 headers: {
                     'Content-Type': 'application/json',
@@ -314,10 +330,13 @@ $tracksJson = json_encode($trackData);
                             player.pause().then(() => {
                                 logStatus('30-Sekunden-Vorschau beendet');
                                 isPlaying = false;
+                                previewEnded = true;
                                 document.getElementById('toggle-play-button').textContent = 'Start';
+                                document.getElementById('progress-bar').style.width = '100%';
+                                document.getElementById('current-time').textContent = '0:30';
                             });
                         }
-                    }, 30000);
+                    }, previewDuration);
                 } else {
                     response.json().then(data => {
                         logStatus(`Fehler beim Abspielen: ${JSON.stringify(data)}`);
@@ -359,18 +378,46 @@ $tracksJson = json_encode($trackData);
             // Playback status updates
             player.addListener('player_state_changed', state => {
                 if (state) {
-                    // Aktualisiere Fortschrittsbalken
-                    const progress = state.position / state.duration * 100;
-                    document.getElementById('progress-bar').style.width = `${progress}%`;
-                    document.getElementById('current-time').textContent = formatTime(state.position);
-                    
                     // Wenn der Track zu Ende ist, spiele den nächsten
                     if (state.paused && state.position === 0 && state.duration > 0) {
                         playTrack(currentTrackIndex + 1);
+                        return;
                     }
                     
-                    isPlaying = !state.paused;
-                    document.getElementById('toggle-play-button').textContent = isPlaying ? 'Stop' : 'Start';
+                    // Aktualisiere nur, wenn die Vorschau nicht beendet wurde
+                    if (!previewEnded) {
+                        isPlaying = !state.paused;
+                        document.getElementById('toggle-play-button').textContent = isPlaying ? 'Stop' : 'Start';
+                        
+                        // Berechne die verstrichene Zeit seit Beginn der 30-Sekunden-Vorschau
+                        const elapsedInPreview = state.position - currentStartPosition;
+                        
+                        // Stelle sicher, dass wir nicht über die Vorschaudauer hinausgehen
+                        const clampedElapsed = Math.min(elapsedInPreview, previewDuration);
+                        
+                        // Aktualisiere Fortschrittsbalken basierend auf der 30-Sekunden-Vorschau
+                        const progress = (clampedElapsed / previewDuration) * 100;
+                        document.getElementById('progress-bar').style.width = `${progress}%`;
+                        document.getElementById('current-time').textContent = formatTime(clampedElapsed);
+                        
+                        // Wenn wir das Ende der Vorschau erreicht haben, stoppe die Wiedergabe
+                        if (elapsedInPreview >= previewDuration && isPlaying) {
+                            player.pause().then(() => {
+                                logStatus('30-Sekunden-Vorschau beendet');
+                                isPlaying = false;
+                                previewEnded = true;
+                                document.getElementById('toggle-play-button').textContent = 'Start';
+                                document.getElementById('progress-bar').style.width = '100%';
+                                document.getElementById('current-time').textContent = '0:30';
+                                
+                                // Lösche den Timer, da wir ihn nicht mehr brauchen
+                                if (playbackTimer) {
+                                    clearTimeout(playbackTimer);
+                                    playbackTimer = null;
+                                }
+                            });
+                        }
+                    }
                 }
             });
             
@@ -399,7 +446,7 @@ $tracksJson = json_encode($trackData);
             // Connect to the player
             player.connect();
             
-            // Player-Steuerung mit kombiniertem Start/Stop-Button
+            // Player-Steuerung mit kombiniertem Start/Stop-Knopf
             document.getElementById('toggle-play-button').addEventListener('click', () => {
                 if (tracks.length === 0) return;
                 
@@ -410,17 +457,32 @@ $tracksJson = json_encode($trackData);
                         document.getElementById('toggle-play-button').textContent = 'Start';
                     });
                 } else {
-                    player.getCurrentState().then(state => {
-                        if (state && state.paused && state.track_window.current_track) {
-                            player.resume().then(() => {
-                                logStatus('Wiedergabe fortgesetzt');
-                                isPlaying = true;
-                                document.getElementById('toggle-play-button').textContent = 'Stop';
-                            });
-                        } else {
-                            playTrack(currentTrackIndex);
-                        }
-                    });
+                    // Wenn die Vorschau bereits beendet wurde, starte einen neuen Track
+                    if (previewEnded) {
+                        playTrack(currentTrackIndex);
+                    } else {
+                        // Sonst versuche den aktuellen Track fortzusetzen
+                        player.getCurrentState().then(state => {
+                            if (state && state.track_window.current_track) {
+                                // Prüfe, ob wir noch innerhalb der 30-Sekunden-Vorschau sind
+                                const elapsedInPreview = state.position - currentStartPosition;
+                                
+                                if (elapsedInPreview < previewDuration) {
+                                    player.resume().then(() => {
+                                        logStatus('Wiedergabe fortgesetzt');
+                                        isPlaying = true;
+                                        document.getElementById('toggle-play-button').textContent = 'Stop';
+                                    });
+                                } else {
+                                    // Wenn die 30 Sekunden bereits abgelaufen sind, starte den Track neu
+                                    playTrack(currentTrackIndex);
+                                }
+                            } else {
+                                // Wenn kein Track geladen ist, starte einen neuen
+                                playTrack(currentTrackIndex);
+                            }
+                        });
+                    }
                 }
             });
             
@@ -447,18 +509,25 @@ $tracksJson = json_encode($trackData);
                 });
             });
             
-            // Aktualisiere den Fortschrittsbalken alle 1000ms
+            // Aktualisiere den Fortschrittsbalken alle 500ms
             setInterval(() => {
-                if (isPlaying) {
+                if (isPlaying && !previewEnded) {
                     player.getCurrentState().then(state => {
                         if (state) {
-                            const progress = state.position / state.duration * 100;
+                            // Berechne die verstrichene Zeit seit Beginn der 30-Sekunden-Vorschau
+                            const elapsedInPreview = state.position - currentStartPosition;
+                            
+                            // Stelle sicher, dass wir nicht über die Vorschaudauer hinausgehen
+                            const clampedElapsed = Math.min(Math.max(0, elapsedInPreview), previewDuration);
+                            
+                            // Aktualisiere Fortschrittsbalken basierend auf der 30-Sekunden-Vorschau
+                            const progress = (clampedElapsed / previewDuration) * 100;
                             document.getElementById('progress-bar').style.width = `${progress}%`;
-                            document.getElementById('current-time').textContent = formatTime(state.position);
+                            document.getElementById('current-time').textContent = formatTime(clampedElapsed);
                         }
                     });
                 }
-            }, 1000);
+            }, 500);
         };
     </script>
 </body>
