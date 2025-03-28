@@ -211,8 +211,7 @@ $tracksJson = json_encode($trackData);
         
         <div id="player-controls">
             <button id="prev-button" disabled>Vorheriger</button>
-            <button id="play-button" disabled>Play</button>
-            <button id="pause-button" disabled>Pause</button>
+            <button id="toggle-play-button" disabled>Start</button>
             <button id="next-button" disabled>Nächster</button>
         </div>
         
@@ -236,6 +235,7 @@ $tracksJson = json_encode($trackData);
         let deviceId;
         let currentTrackIndex = 0;
         let isPlaying = false;
+        let playbackTimer = null;
         
         // Status-Log-Funktion
         function logStatus(message) {
@@ -277,12 +277,25 @@ $tracksJson = json_encode($trackData);
         function playTrack(index) {
             if (index < 0 || index >= tracks.length || !deviceId) return;
             
+            // Stoppe den vorherigen Timer, falls vorhanden
+            if (playbackTimer) {
+                clearTimeout(playbackTimer);
+                playbackTimer = null;
+            }
+            
             currentTrackIndex = index;
             const track = tracks[currentTrackIndex];
             
+            // Berechne die Startposition bei ca. 30-40% des Songs
+            const startPercentage = 0.3 + (Math.random() * 0.1); // 30-40%
+            const startPositionMs = Math.floor(track.duration_ms * startPercentage);
+            
             fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
                 method: 'PUT',
-                body: JSON.stringify({ uris: [track.uri] }),
+                body: JSON.stringify({ 
+                    uris: [track.uri],
+                    position_ms: startPositionMs
+                }),
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer <?php echo $_SESSION['spotify_access_token']; ?>`
@@ -290,9 +303,21 @@ $tracksJson = json_encode($trackData);
             })
             .then(response => {
                 if (response.status === 204) {
-                    logStatus(`Spiele Track ab: ${track.name}`);
+                    logStatus(`Spiele Track ab: ${track.name} (ab ${Math.floor(startPercentage * 100)}% des Songs)`);
                     isPlaying = true;
                     updateCurrentTrack(track);
+                    document.getElementById('toggle-play-button').textContent = 'Stop';
+                    
+                    // Timer setzen, um nach 30 Sekunden zu pausieren
+                    playbackTimer = setTimeout(() => {
+                        if (isPlaying && currentTrackIndex === index) {
+                            player.pause().then(() => {
+                                logStatus('30-Sekunden-Vorschau beendet');
+                                isPlaying = false;
+                                document.getElementById('toggle-play-button').textContent = 'Start';
+                            });
+                        }
+                    }, 30000);
                 } else {
                     response.json().then(data => {
                         logStatus(`Fehler beim Abspielen: ${JSON.stringify(data)}`);
@@ -334,8 +359,6 @@ $tracksJson = json_encode($trackData);
             // Playback status updates
             player.addListener('player_state_changed', state => {
                 if (state) {
-                    logStatus('Wiedergabestatus geändert');
-                    
                     // Aktualisiere Fortschrittsbalken
                     const progress = state.position / state.duration * 100;
                     document.getElementById('progress-bar').style.width = `${progress}%`;
@@ -347,6 +370,7 @@ $tracksJson = json_encode($trackData);
                     }
                     
                     isPlaying = !state.paused;
+                    document.getElementById('toggle-play-button').textContent = isPlaying ? 'Stop' : 'Start';
                 }
             });
             
@@ -356,8 +380,7 @@ $tracksJson = json_encode($trackData);
                 logStatus(`Player bereit mit Device ID: ${device_id}`);
                 
                 // Aktiviere Steuerelemente
-                document.getElementById('play-button').disabled = false;
-                document.getElementById('pause-button').disabled = false;
+                document.getElementById('toggle-play-button').disabled = false;
                 document.getElementById('prev-button').disabled = false;
                 document.getElementById('next-button').disabled = false;
                 document.getElementById('volume').disabled = false;
@@ -376,32 +399,45 @@ $tracksJson = json_encode($trackData);
             // Connect to the player
             player.connect();
             
-            // Player-Steuerung
-            document.getElementById('play-button').addEventListener('click', () => {
+            // Player-Steuerung mit kombiniertem Start/Stop-Button
+            document.getElementById('toggle-play-button').addEventListener('click', () => {
                 if (tracks.length === 0) return;
                 
                 if (isPlaying) {
-                    player.resume().then(() => {
-                        logStatus('Wiedergabe fortgesetzt');
+                    player.pause().then(() => {
+                        logStatus('Wiedergabe pausiert');
+                        isPlaying = false;
+                        document.getElementById('toggle-play-button').textContent = 'Start';
                     });
                 } else {
-                    playTrack(currentTrackIndex);
+                    player.getCurrentState().then(state => {
+                        if (state && state.paused && state.track_window.current_track) {
+                            player.resume().then(() => {
+                                logStatus('Wiedergabe fortgesetzt');
+                                isPlaying = true;
+                                document.getElementById('toggle-play-button').textContent = 'Stop';
+                            });
+                        } else {
+                            playTrack(currentTrackIndex);
+                        }
+                    });
                 }
             });
             
-            document.getElementById('pause-button').addEventListener('click', () => {
-                player.pause().then(() => {
-                    logStatus('Wiedergabe pausiert');
-                    isPlaying = false;
-                });
-            });
-            
             document.getElementById('prev-button').addEventListener('click', () => {
-                playTrack(currentTrackIndex - 1);
+                if (currentTrackIndex > 0) {
+                    playTrack(currentTrackIndex - 1);
+                } else {
+                    logStatus('Bereits beim ersten Track');
+                }
             });
             
             document.getElementById('next-button').addEventListener('click', () => {
-                playTrack(currentTrackIndex + 1);
+                if (currentTrackIndex < tracks.length - 1) {
+                    playTrack(currentTrackIndex + 1);
+                } else {
+                    logStatus('Bereits beim letzten Track');
+                }
             });
             
             document.getElementById('volume').addEventListener('change', (e) => {
