@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($pageTitle) ? $pageTitle . ' - MusicMatch' : 'MusicMatch'; ?></title>
+    <link rel="icon" type="image/x-icon" href="./img/musicmatch.svg">
     <link rel="stylesheet" href="./styles/style.css">
     <link rel="stylesheet" href="./styles/header.css">
     <link rel="stylesheet" href="./styles/footer.css"> <?php if (isset($additionalCSS)) echo $additionalCSS; ?>
@@ -26,7 +27,7 @@
                 <ul class="nav-menu">
                     <li><a href="index.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'active' : ''; ?>">Home</a></li>
                     <li><a href="features.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'features.php') ? 'active' : ''; ?>">Features</a></li>
-                    <li><a href="webplayer.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'webplayer.php') ? 'active' : ''; ?>">Web Player</a></li>
+                    <li><a href="favorites.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'favorites.php') ? 'active' : ''; ?>">Favorite</a></li>
                     <li><a href="swiper.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'swiper.php') ? 'active' : ''; ?>">Music Swiper</a></li>
                     <li><a href="about.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'about.php') ? 'active' : ''; ?>">About</a></li>
                 </ul>
@@ -64,7 +65,7 @@
                                            htmlspecialchars($_SESSION['userData']['display_name']) : 'User';
                             ?>
                             <img src="<?php echo $profileImage; ?>" alt="Profile Picture">
-                            <span><?php echo $displayName; ?></span>
+                            <span><?php echo "<a href='./profile.php'>$displayName</a>"; ?></span>
                         </div>
                         <a href="logout.php" class="btn btn-outline">Logout</a>
                     <?php else: 

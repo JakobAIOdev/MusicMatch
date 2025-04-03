@@ -24,13 +24,11 @@ if (isset($_SESSION['spotify_access_token']) && isset($_SESSION['spotify_token_e
     }
 }
 
-// Check if user is logged in
 if (isset($_SESSION['spotify_access_token'])) {
     $api = new SpotifyWebAPI\SpotifyWebAPI();
     $api->setAccessToken($_SESSION['spotify_access_token']);
     try {
         $me = $api->me();
-        // Make sure user data is properly set
         if (!isset($_SESSION['userData']) || empty($_SESSION['userData'])) {
             $_SESSION['userData'] = [
                 'id' => $me->id,
@@ -42,7 +40,6 @@ if (isset($_SESSION['spotify_access_token'])) {
         error_log('User validated in index: ' . $_SESSION['userData']['display_name']);
     } catch (Exception $e) {
         error_log('API Error in index: ' . $e->getMessage());
-        // Clear invalid session data
         unset($_SESSION['userData']);
         unset($_SESSION['spotify_access_token']);
     }
@@ -67,7 +64,7 @@ include "header.php";
 <section class="section">
     <div class="container">
         <div class="section-title">
-            <h2>Why Choose MusicMatch?</h2>
+            <h2>MusicMatch Features</h2>
             <p>Our platform offers a unique way to discover and enjoy music</p>
         </div>
         
@@ -77,7 +74,7 @@ include "header.php";
                     <i class="fas fa-music"></i>
                 </div>
                 <h3 class="feature-title">Personalized Recommendations</h3>
-                <p class="feature-description">Our AI learns your preferences and suggests songs you'll love based on your listening history.</p>
+                <p class="feature-description">We analyse your preferences and suggests songs you'll love based on your listening history.</p>
             </div>
             
             <div class="feature-card">
@@ -92,16 +89,8 @@ include "header.php";
                 <div class="feature-icon">
                     <i class="fas fa-headphones-alt"></i>
                 </div>
-                <h3 class="feature-title">Integrated Web Player</h3>
-                <p class="feature-description">Listen to full tracks right in your browser without switching between apps.</p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-share-alt"></i>
-                </div>
-                <h3 class="feature-title">Share Your Favorites</h3>
-                <p class="feature-description">Create and share playlists with friends and the MusicMatch community.</p>
+                <h3 class="feature-title">Explore your Favorites</h3>
+                <p class="feature-description">Check out your favorite artists and songs for different time periods.</p>
             </div>
         </div>
     </div>
@@ -117,8 +106,8 @@ include "header.php";
         <div class="steps">
             <div class="step">
                 <div class="step-number">1</div>
-                <h3 class="step-title">Sign Up</h3>
-                <p class="step-description">Create your account and connect with Spotify to access your music library.</p>
+                <h3 class="step-title">Login</h3>
+                <p class="step-description">Login with your Spotify Account to access your music library.</p>
             </div>
             
             <div class="step">
@@ -161,8 +150,7 @@ include "header.php";
         <h2 class="cta-title">Ready to Find Your Next Favorite Song?</h2>
         <p class="cta-description">Join thousands of music lovers discovering new tracks every day with MusicMatch.</p>
         <div class="cta-buttons">
-            <a href="signup.php" class="btn btn-accent">Sign Up Now</a>
-            <a href="features.php" class="btn btn-outline">Learn More</a>
+            <a href="signup.php" class="btn btn-accent">Login with Spotify</a>
         </div>
     </div>
 </section>
