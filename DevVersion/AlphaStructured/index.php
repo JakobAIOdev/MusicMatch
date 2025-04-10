@@ -17,9 +17,9 @@ require_once './includes/spotify_utils.php';
             <p class="hero-subtitle">MusicMatch uses smart algorithms to recommend music tailored to your taste. Discover, swipe, and create the perfect playlist.</p>
             <div class="hero-buttons">
                 <?php if (!isset($_SESSION['spotify_access_token'])): ?>
-                    <a href="auth/login.php" class="btn btn-accent">Get Started</a>
+                    <a href="auth/login.php" class="btn btn-accent">Login with Spotify</a>
                 <?php else: ?>
-                    <a href="features.php" class="btn btn-accent">Your Music</a>
+                    <a href="features.php" class="btn btn-accent">All Features</a>
                 <?php endif; ?>
                 <a href="features.php" class="btn btn-outline">Learn More</a>
             </div>
@@ -99,7 +99,7 @@ require_once './includes/spotify_utils.php';
             <?php if (!isset($_SESSION['spotify_access_token'])): ?>
                 <a href="auth/login.php" class="btn btn-accent">Login with Spotify</a>
             <?php else: ?>
-                <a href="profile.php" class="btn btn-accent">Go to Profile</a>
+                <a href="swiper.php" class="btn btn-accent">Go to Swiper</a>
             <?php endif; ?>
         </div>
     </div>
