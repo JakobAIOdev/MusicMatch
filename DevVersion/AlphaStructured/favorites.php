@@ -7,10 +7,11 @@ include "./templates/header.php";
 require_once './vendor/autoload.php';
 include_once "./includes/config.php";
 require_once './includes/spotify_utils.php';
+require_once './templates/components/login_notice.php';
 
 if (!isLoggedIn()) {
-    header('Location: /auth/login.php');
-    exit;
+    showLoginNotice();
+    die;
 }
 
 $api = getSpotifyApi();

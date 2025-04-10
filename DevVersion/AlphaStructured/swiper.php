@@ -5,10 +5,11 @@ include "./templates/header.php";
 require_once './vendor/autoload.php';
 require_once './includes/spotify_utils.php';
 require_once './templates/components/premium_notice.php';
+require_once './templates/components/login_notice.php';
 
 if (!isLoggedIn()) {
-    header('Location: /auth/login.php');
-    exit;
+    showLoginNotice();
+    die;
 }
 
 $api = getSpotifyApi();
@@ -17,7 +18,7 @@ $me = $api->me();
 $hasPremium = ($me->product === 'premium');
 
 if (!$hasPremium) {
-    showPremiumNotice("Erweiterte Musikanalyse");
+    showPremiumNotice("Music Swiper");
 } else {
 
 }

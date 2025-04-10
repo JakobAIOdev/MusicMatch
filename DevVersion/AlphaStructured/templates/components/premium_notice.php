@@ -12,10 +12,8 @@ function showPremiumNotice($featureName = "Feature") {
                 <p class="premium-notice-subtext">Upgrade to Premium, to gain access to this feature.</p>
             </div>
             <div class="premium-notice-actions">
-                <a href="premium.php" class="btn btn-accent">Upgrade to Premium</a>
-                <a href="/index.php" class="btn btn-primary">
-                <button class="btn btn-outline premium-notice-close">Close</button>
-                </a>
+                <a href="https://open.spotify.com/premium" class="btn btn-accent">Upgrade to Premium</a>
+                <a href="/index.php" class="btn btn-primary">Close</a>
             </div>
         </div>
     </div>
