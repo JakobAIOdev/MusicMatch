@@ -41,10 +41,10 @@ include './includes/getFavSongs.php';
 
         <div class="action-buttons">
             <button class="action-button dislike-button" id="dislike-button">
-                <img src="./assets/img/dislikeicon.svg" alt="Dislike">
+                <img src="./assets/img/icons/dislike.svg" alt="Dislike">
             </button>
             <button class="action-button like-button" id="like-button">
-            <img src="./assets/img/likeicon.svg" alt="Like">
+            <img src="./assets/img/icons/like.svg" alt="Like">
             </button>
         </div>
 

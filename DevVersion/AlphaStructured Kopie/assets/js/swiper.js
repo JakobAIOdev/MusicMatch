@@ -9,8 +9,9 @@ let previewEnded = false;
 let likedSongs = [];
 let currentCard = null;
 let isAnimating = false;
+let progressUpdateTimer = null;
 
-console.log(spotifyAccessToken, tracks);
+//console.log(spotifyAccessToken, tracks);
 
 const swipeContainer = document.getElementById("swipe-container");
 const likeButton = document.getElementById("like-button");
@@ -40,21 +41,21 @@ function createCard(track) {
             <div class="preview-info">30-second preview</div>
                 
             <div class="volume-control">
-                <i class="fas fa-volume-up volume-icon"></i>
+                <img src="./assets/img/icons/volume.svg" alt="Volume">
                 <input type="range" id="volume" min="0" max="100" value="50">
             </div>
                 
             <div class="swipe-indicator swipe-indicator-like">
-                <i class="fas fa-heart"></i>
+                <img src="./assets/img/icons/like.svg" alt="Like">
             </div>
                 
             <div class="swipe-indicator swipe-indicator-dislike">
-                <i class="fas fa-times"></i>
+                <img src="./assets/img/icons/dislike.svg" alt="Dislike">
             </div>
                 
             <div class="player-controls-container">
                 <button class="player-control-button" id="toggle-play-button">
-                    <img src="./assets/img/playicon.svg" alt="Play/Pause" id="play-icon">
+                    <img src="./assets/img/icons/play.svg" alt="Play/Pause" id="play-icon">
                 </button>
                 <div class="progress-container">
                     <div class="progress-bar" id="progress-bar"></div>
@@ -222,6 +223,10 @@ function playCurrentTrack(){
         playbackTimer = null;
     }
 
+    if(progressUpdateTimer) {
+        clearInterval(progressUpdateTimer);
+    }
+
     const startPercentage = 0.3 + (Math.random() * 0.1); // 30-40%
     currentStartPosition = Math.floor(track.duration_ms * startPercentage);
 
@@ -241,6 +246,7 @@ function playCurrentTrack(){
         if (response.status === 204) {
             isPlaying = true;
             updatePlayButton();
+            startProgressUpdates();
 
             playbackTimer = setTimeout(() => {
                 if (isPlaying) {
@@ -250,6 +256,11 @@ function playCurrentTrack(){
                         updatePlayButton();
                         document.getElementById('progress-bar').style.width = '100%';
                         document.getElementById('current-time').textContent = '0:30';
+
+                        if(progressUpdateTimer) {
+                            clearInterval(progressUpdateTimer);
+                            progressUpdateTimer = null;
+                        }
                     });
                 }
             }, previewDuration);
@@ -269,6 +280,11 @@ function togglePlay() {
         player.pause().then(() => {
             isPlaying = false;
             updatePlayButton();
+
+            if(progressUpdateTimer) {
+                clearInterval(progressUpdateTimer);
+                progressUpdateTimer = null;
+            }
         });
     } else {
         if (previewEnded) {
@@ -277,6 +293,7 @@ function togglePlay() {
             player.resume().then(() => {
                 isPlaying = true;
                 updatePlayButton();
+                startProgressUpdates();
             });
         }
     }
@@ -285,10 +302,10 @@ function togglePlay() {
 function updatePlayButton() {
     const playIcon = document.getElementById('play-icon');
     if (isPlaying) {
-        playIcon.src = './assets/img/pauseicon.svg';
+        playIcon.src = './assets/img/icons/pause.svg';
         playIcon.alt = 'Pause';
     } else {
-        playIcon.src = './assets/img/playicon.svg';
+        playIcon.src = './assets/img/icons/play.svg';
         playIcon.alt = 'Play';
     }
 }
@@ -338,7 +355,6 @@ window.onSpotifyWebPlaybackSDKReady = () => {
             isPlaying = !state.paused;
             updatePlayButton();
 
-            // Calculate elapsed time since start of 30-second preview
             const elapsedInPreview = Math.min(state.position - currentStartPosition, previewDuration);
             const clampedElapsed = Math.max(0, elapsedInPreview);
             const progress = (clampedElapsed / previewDuration) * 100;
@@ -394,10 +410,45 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Helper function to format time
 function formatTime(ms) {
     const totalSeconds = Math.floor(ms / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function startProgressUpdates() {
+    if(progressUpdateTimer) {
+        clearInterval(progressUpdateTimer);
+    }
+    progressUpdateTimer = setInterval(() => {
+        player.getCurrentState().then(state => {
+            if (state && isPlaying && !previewEnded) {
+                const elapsedInPreview = Math.min(state.position - currentStartPosition, previewDuration);
+                const clampedElapsed = Math.max(0, elapsedInPreview);
+                const progress = (clampedElapsed / previewDuration) * 100;
+                
+                document.getElementById('progress-bar').style.width = `${progress}%`;
+                document.getElementById('current-time').textContent = formatTime(clampedElapsed);
+                
+                if (elapsedInPreview >= previewDuration) {
+                    player.pause().then(() => {
+                        isPlaying = false;
+                        previewEnded = true;
+                        updatePlayButton();
+                        document.getElementById('progress-bar').style.width = '100%';
+                        document.getElementById('current-time').textContent = '0:30';
+                        
+                        clearInterval(progressUpdateTimer);
+                        progressUpdateTimer = null;
+                        
+                        if (playbackTimer) {
+                            clearTimeout(playbackTimer);
+                            playbackTimer = null;
+                        }
+                    });
+                }
+            }
+        });
+    }, 100); // update every 100ms
 }

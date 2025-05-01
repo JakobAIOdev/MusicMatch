@@ -38,7 +38,7 @@ require_once './includes/spotify_utils.php';
         <div class="features-grid">
             <div class="feature-card">
                 <div class="feature-icon">
-                    <img src="./assets/img/analytic-google.svg" alt="Analyse Icon">
+                    <img src="./assets/img/icons/analytics.svg" alt="Analytics Icon">
                 </div>
                 <h3 class="feature-title">Personalized Recommendations</h3>
                 <p class="feature-description">We analyse your preferences and suggests songs you'll love based on your listening history.</p>
@@ -46,7 +46,7 @@ require_once './includes/spotify_utils.php';
 
             <div class="feature-card">
                 <div class="feature-icon">
-                    <img src="./assets/img/swipe-google.svg" alt="Swipe Icon">
+                    <img src="./assets/img/icons/swipe.svg" alt="Swipe Icon">
                 </div>
                 <h3 class="feature-title">Swipe to Discover</h3>
                 <p class="feature-description">Our intuitive swipe interface makes finding new music fun and engaging.</p>
@@ -54,7 +54,7 @@ require_once './includes/spotify_utils.php';
 
             <div class="feature-card">
                 <div class="feature-icon">
-                    <img src="./assets/img/music-google.svg" alt="Headphones Icon">
+                    <img src="./assets/img/icons/discover.svg" alt="Discover Icon">
                 </div>
                 <h3 class="feature-title">Explore your Favorites</h3>
                 <p class="feature-description">Check out your favorite artists and songs for different time periods.</p>

@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($pageTitle) ? $pageTitle . ' - MusicMatch' : 'MusicMatch'; ?></title>
-    <link rel="icon" type="image/x-icon" href="./img/musicmatch.svg">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="icon" type="image/x-icon" href="../assets/img/icons/musicmatch-logo.svg">
     <link rel="stylesheet" href="../assets/css/fonts.css">
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/header.css">
@@ -17,7 +16,7 @@
 <body>
     <header class="site-header">
         <div class="container header-container">
-            <div class="site-logo"> <a href="index.php"> <img src="../assets/img/musicmatch.svg" alt="MusicMatch Logo"> <span>MusicMatch</span> </a> </div>
+            <div class="site-logo"> <a href="index.php"> <img src="../assets/img/icons/musicmatch-logo.svg" alt="MusicMatch Logo"> <span>MusicMatch</span> </a> </div>
             <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle menu">
                 <span class="burger-menu">
                     <span class="burger-line"></span>
