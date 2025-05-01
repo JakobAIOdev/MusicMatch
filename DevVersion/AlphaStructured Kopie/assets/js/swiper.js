@@ -475,33 +475,35 @@ const swipeMethod = document.getElementById("swipe-method");
 const playlistInputGroup = document.getElementById("playlist-input-group");
 const form = document.getElementById("swipe-form");
 
-// Only show/hide the playlist input on page load, don't submit!
 function setInitialState() {
+    const inputGroup = document.querySelector('.input-group');
+    
     if (swipeMethod.value === "playlist") {
-        playlistInputGroup.style.display = "block";
+        playlistInputGroup.classList.add('visible');
+        inputGroup.classList.add('playlist-mode');
     } else {
-        playlistInputGroup.style.display = "none";
+        playlistInputGroup.classList.remove('visible');
+        inputGroup.classList.remove('playlist-mode');
     }
 }
 
-// On user change, handle submit/show
 function updateForm(e) {
+    const inputGroup = document.querySelector('.input-group');
+    
     if (swipeMethod.value === "playlist") {
-        playlistInputGroup.style.display = "block";
-        // Don't submit when just changing the dropdown
+        playlistInputGroup.classList.add('visible');
+        inputGroup.classList.add('playlist-mode');
         if (e) e.preventDefault();
     } else {
-        playlistInputGroup.style.display = "none";
+        playlistInputGroup.classList.remove('visible');
+        inputGroup.classList.remove('playlist-mode');
         form.submit();
     }
 }
 
-// Make sure the Apply button works correctly
 const applyButton = document.querySelector("#playlist-input-group button");
 if (applyButton) {
-    // The Apply button should just let the form submit naturally
     applyButton.addEventListener("click", function() {
-        // No preventDefault() so the form submits normally
     });
 }
 

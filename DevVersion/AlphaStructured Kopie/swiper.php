@@ -42,18 +42,25 @@ include './includes/getFavSongs.php';
                 Or use the arrow keys ← → or the buttons below.</p>
             <div class="swipe-method-container">
                 <form method="GET" action="swiper.php" id="swipe-form">
-                    <label for="swipe-method">Select Swipe Method:</label>
-                    <select id="swipe-method" name="swipe-method">
-                        <option value="lastFM" <?php echo ($swipeMethod === 'lastFM') ? 'selected' : ''; ?>>LastFM</option>
-                        <option value="playlist" <?php echo ($swipeMethod === 'playlist') ? 'selected' : ''; ?>>Playlist</option>
-                        <option value="random" <?php echo ($swipeMethod === 'random') ? 'selected' : ''; ?>>Random</option>
-                    </select>
-                    <div id="playlist-input-group" style="display:<?php echo ($swipeMethod === 'playlist') ? 'block' : 'none'; ?>; margin-top:10px;">
-                        <label for="playlist-link">Playlist Link:</label>
-                        <input type="url" id="playlist-link" name="playlist-link" placeholder="Paste playlist link here"
-                            value="<?php echo isset($_GET['playlist-link']) ? htmlspecialchars($_GET['playlist-link']) : ''; ?>"
-                            required>
-                        <button type="submit" class="btn btn-primary">Apply</button>
+                    <div class="form-row">
+                        <label for="swipe-method">Select Swipe Method:</label>
+                        <div class="input-group <?php echo ($swipeMethod === 'playlist') ? 'playlist-mode' : ''; ?>">
+                            <select id="swipe-method" name="swipe-method">
+                                <option value="lastFM" <?php echo ($swipeMethod === 'lastFM') ? 'selected' : ''; ?>>LastFM</option>
+                                <option value="playlist" <?php echo ($swipeMethod === 'playlist') ? 'selected' : ''; ?>>Playlist</option>
+                                <option value="random" <?php echo ($swipeMethod === 'random') ? 'selected' : ''; ?>>Random</option>
+                                <option value="short_term" <?php echo ($swipeMethod === 'short_term') ? 'selected' : ''; ?>>Favorites 4-Weeks</option>
+                                <option value="medium_term" <?php echo ($swipeMethod === 'medium_term') ? 'selected' : ''; ?>>Favorites 6-Months</option>
+                                <option value="long_term" <?php echo ($swipeMethod === 'long_term') ? 'selected' : ''; ?>>Favorites All</option>
+                            </select>
+
+                            <div id="playlist-input-group" class="<?php echo ($swipeMethod === 'playlist') ? 'visible' : ''; ?>">
+                                <input type="url" id="playlist-link" name="playlist-link" placeholder="Paste Spotify playlist link"
+                                    value="<?php echo isset($_GET['playlist-link']) ? htmlspecialchars($_GET['playlist-link']) : ''; ?>"
+                                    required>
+                                <button type="submit" class="btn btn-primary">Apply</button>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -97,8 +104,8 @@ include './includes/getFavSongs.php';
         } else {
             die('Playlist link is required');
         }
-    } elseif ($swipeMethod === 'lastFM') {
-        $tracksJson = getTopTracks($api);
+    } elseif ($swipeMethod === 'short_term' || $swipeMethod === 'medium_term' || $swipeMethod === 'long_term') {
+        $tracksJson = favoritesTracks($api, $swipeMethod);
     } else {
         die('Invalid swipe method');
     }
