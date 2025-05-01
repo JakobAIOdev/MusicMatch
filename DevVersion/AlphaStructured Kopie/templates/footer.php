@@ -5,7 +5,7 @@
         <div class="footer-content">
             <div class="footer-section">
                 <div class="footer-logo">
-                    <img src="../assets/img/musicmatch.svg" alt="MusicMatch Logo">
+                    <img src="../assets/img/icons/musicmatch-logo.svg" alt="MusicMatch Logo">
                     <span>MusicMatch</span>
                 </div>
                 <p>Discover and share your favorite music with MusicMatch. Our platform helps you find new tracks tailored to your taste.</p>
@@ -30,15 +30,6 @@
                     <li><a href="#">Privacy Policy</a></li>
                     <li><a href="#">Terms of Service</a></li>
                 </ul>
-            </div>
-            
-            <div class="footer-section">
-                <h3>Newsletter</h3>
-                <p>Subscribe to our newsletter for updates on new features and music recommendations.</p>
-                <form class="newsletter-form">
-                    <input type="email" placeholder="Your email address" required>
-                    <button type="submit" class="btn btn-primary">Subscribe</button>
-                </form>
             </div>
         </div>
         

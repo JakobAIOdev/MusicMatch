@@ -35,7 +35,17 @@ h2 {
     max-width: 100%;
 }
 
-/* New card design */
+.swipe-method-container select {
+    width: 100%;
+    padding: 10px;
+    border-radius: var(--border-radius);
+    border: 1px solid #ccc;
+    background-color: var(--card-bg);
+    font-size: 16px;
+    color: var(--text-dark);
+    margin-bottom: 20px;
+}
+
 .card {
     position: absolute;
     width: 100%;
@@ -50,7 +60,6 @@ h2 {
     flex-direction: column;
 }
 
-/* Simplified swipe animations */
 .card.swiped-left {
     transform: translateX(-150%) rotate(-10deg);
     opacity: 0;
@@ -61,7 +70,6 @@ h2 {
     opacity: 0;
 }
 
-/* Redesigned card image section */
 .card-image-container {
     position: relative;
     width: 100%;
@@ -80,7 +88,6 @@ h2 {
     transform: scale(1.05);
 }
 
-/* Overlay gradient on image */
 .image-overlay {
     position: absolute;
     top: 0;
@@ -93,7 +100,6 @@ h2 {
             rgba(0, 0, 0, 0.7) 100%);
 }
 
-/* Redesigned card content */
 .card-content {
     padding: 24px;
     flex-grow: 1;
@@ -131,7 +137,6 @@ h2 {
     justify-content: center;
 }
 
-/* Redesigned Spotify button */
 .spotify-button {
     display: flex;
     align-items: center;
@@ -190,7 +195,6 @@ h2 {
     color: white;
 }
 
-/* Redesigned player controls */
 .player-controls-container {
     position: absolute;
     bottom: 0;
@@ -224,7 +228,6 @@ h2 {
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
 }
 
-/* Redesigned progress bar */
 .progress-container {
     flex-grow: 1;
     height: 6px;
@@ -250,7 +253,6 @@ h2 {
     text-align: right;
 }
 
-/* Preview info badge */
 .preview-info {
     position: absolute;
     top: 15px;
@@ -264,7 +266,6 @@ h2 {
     z-index: 2;
 }
 
-/* Volume control */
 .volume-control {
     position: absolute;
     top: 15px;
@@ -301,7 +302,6 @@ input[type="range"]::-webkit-slider-thumb {
     cursor: pointer;
 }
 
-/* Liked songs container */
 .liked-songs-container {
     background-color: var(--card-bg);
     border-radius: var(--border-radius);
@@ -420,7 +420,6 @@ input[type="range"]::-webkit-slider-thumb {
     font-size: 15px;
 }
 
-/* Swipe indicators */
 .swipe-indicator {
     position: absolute;
     top: 50%;
