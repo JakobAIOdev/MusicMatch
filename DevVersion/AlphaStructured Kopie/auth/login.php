@@ -22,6 +22,8 @@ $options = [
         'user-top-read',
         'playlist-read-private',
         'playlist-read-collaborative',
+        'playlist-modify-private',
+        'playlist-modify-public',
         'user-read-recently-played'
     ],
     'state' => $state,

@@ -3,6 +3,22 @@ require_once './includes/session_handler.php';
 require_once './vendor/autoload.php';
 require_once './includes/spotify_utils.php';
 
+function filterSeenTracks($tracks) {
+    if (!isset($_SESSION['seen_track_ids'])) {
+        $_SESSION['seen_track_ids'] = [];
+    }
+    
+    $filteredTracks = [];
+    
+    foreach ($tracks as $track) {
+        if (!in_array($track['id'], $_SESSION['seen_track_ids'])) {
+            $filteredTracks[] = $track;
+            $_SESSION['seen_track_ids'][] = $track['id'];
+        }
+    }
+    return $filteredTracks;
+}
+
 function playlistTracks($api, $playlistLink){
 
     $playlistId = null;
@@ -35,10 +51,12 @@ function playlistTracks($api, $playlistLink){
             'spotify_url' => $track->external_urls->spotify ?? '#'
         ];        
     }
-
+    
+    $trackData = filterSeenTracks($trackData);
     shuffle($trackData);
     return $tracksJson = json_encode($trackData);
 }
+
 
 function favoritesTracks($api, $time_range){
     $topItems = $api->getMyTop('tracks', [
@@ -61,7 +79,15 @@ function favoritesTracks($api, $time_range){
             'spotify_url' => $item->external_urls->spotify ?? '#'
         ];        
     }
-
-    shuffle($trackData);
-    return $tracksJson = json_encode($trackData);
+    
+    $filteredTracks = filterSeenTracks($trackData);
+    
+    if (empty($filteredTracks)) {
+        $_SESSION['notice'] = "You've already seen all tracks from this category. Showing them again.";
+        shuffle($trackData);
+        return json_encode($trackData);
+    }
+    
+    shuffle($filteredTracks);
+    return json_encode($filteredTracks);
 }

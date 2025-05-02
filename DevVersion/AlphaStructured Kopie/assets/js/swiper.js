@@ -141,11 +141,18 @@ function handleSwipe(direction) {
         setTimeout(() => likeCurrentTrack(), 100);
     }
 
+    const cardToRemove = currentCard;
+    currentCard = null;
+    
     setTimeout(() => {
-        if (currentCard) {
-            currentCard.remove();
-            currentCard = null;
+        if (cardToRemove && cardToRemove.parentNode) {
+            cardToRemove.parentNode.removeChild(cardToRemove);
         }
+        
+        document.querySelectorAll('#swipe-container > .card').forEach(oldCard => {
+            oldCard.parentNode.removeChild(oldCard);
+        });
+        
         currentTrackIndex++;
 
         if (currentTrackIndex < tracks.length) {
@@ -163,8 +170,10 @@ function handleSwipe(direction) {
 
 function likeCurrentTrack() {
     const track = tracks[currentTrackIndex];
+    
     likedSongs.push(track);
     updateLikedSongsList();
+    saveLikedSongs(likedSongs);
 }
 
 function dislikeCurrentTrack() {}
@@ -249,7 +258,7 @@ function playCurrentTrack() {
         },
     })
         .then((response) => {
-            console.log("Response:", response);
+            //console.log("Response:", response);
             if (response.status === 204) {
                 isPlaying = true;
                 updatePlayButton();
@@ -395,29 +404,6 @@ window.onSpotifyWebPlaybackSDKReady = () => {
     });
     player.connect();
 };
-
-likeButton.addEventListener("click", () => {
-    if (!isAnimating) {
-        handleSwipe("right");
-    }
-});
-
-dislikeButton.addEventListener("click", () => {
-    if (!isAnimating) {
-        handleSwipe("left");
-    }
-});
-
-document.addEventListener("keydown", (e) => {
-    if (isAnimating) return;
-
-    if (e.key === "ArrowLeft") {
-        handleSwipe("left");
-    } else if (e.key === "ArrowRight") {
-        handleSwipe("right");
-    }
-});
-
 function formatTime(ms) {
     const totalSeconds = Math.floor(ms / 1000);
     const minutes = Math.floor(totalSeconds / 60);
@@ -439,25 +425,36 @@ function startProgressUpdates() {
                 const clampedElapsed = Math.max(0, elapsedInPreview);
                 const progress = (clampedElapsed / previewDuration) * 100;
 
-                document.getElementById(
-                    "progress-bar"
-                ).style.width = `${progress}%`;
-                document.getElementById("current-time").textContent =
-                    formatTime(clampedElapsed);
+                const progressBar = document.getElementById("progress-bar");
+                const currentTime = document.getElementById("current-time");
 
+                if (progressBar) {
+                    progressBar.style.width = `${progress}%`;
+                }
+                
+                if (currentTime) {
+                    currentTime.textContent = formatTime(clampedElapsed);
+                }
                 if (elapsedInPreview >= previewDuration) {
                     player.pause().then(() => {
                         isPlaying = false;
                         previewEnded = true;
                         updatePlayButton();
-                        document.getElementById("progress-bar").style.width =
-                            "100%";
-                        document.getElementById("current-time").textContent =
-                            "0:30";
+
+                        const progressBarEnd = document.getElementById("progress-bar");
+                        const currentTimeEnd = document.getElementById("current-time");
+
+                        if (progressBarEnd) {
+                            progressBarEnd.style.width = "100%";
+                        }
+                        
+                        if (currentTimeEnd) {
+                            currentTimeEnd.textContent = "0:30";
+                        }
 
                         clearInterval(progressUpdateTimer);
                         progressUpdateTimer = null;
-
+                        
                         if (playbackTimer) {
                             clearTimeout(playbackTimer);
                             playbackTimer = null;
@@ -493,7 +490,7 @@ function updateForm(e) {
     if (swipeMethod.value === "playlist") {
         playlistInputGroup.classList.add('visible');
         inputGroup.classList.add('playlist-mode');
-        if (e) e.preventDefault();
+        if (e && e.preventDefault) e.preventDefault(); // Safer check
     } else {
         playlistInputGroup.classList.remove('visible');
         inputGroup.classList.remove('playlist-mode');
@@ -501,11 +498,266 @@ function updateForm(e) {
     }
 }
 
-const applyButton = document.querySelector("#playlist-input-group button");
-if (applyButton) {
-    applyButton.addEventListener("click", function() {
+swipeMethod.addEventListener("change", updateForm);
+
+
+function showPlaylistModal() {
+    document.querySelector('.modal-body').innerHTML = `
+        <div class="loading-spinner text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading your playlists...</p>
+        </div>
+    `;
+    const playlistModal = new bootstrap.Modal(document.getElementById('playlist-modal'));
+    playlistModal.show();
+    
+    fetchUserPlaylists();
+}
+
+function fetchUserPlaylists() {
+    fetch('./get_playlists.php')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Server returned status ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success && data.playlists && data.playlists.length > 0) {
+                document.querySelector('.modal-body').innerHTML = `
+                    <div class="mb-3">
+                        <label for="playlist-select" class="form-label">Choose a playlist:</label>
+                        <select class="form-select" id="playlist-select">
+                            <option value="" disabled selected>Select a playlist...</option>
+                        </select>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary" id="confirm-playlist-btn" disabled>Add to Selected Playlist</button>
+                    </div>
+                `;
+                
+                const playlistSelect = document.getElementById('playlist-select');
+                
+                data.playlists.forEach(playlist => {
+                    const option = document.createElement('option');
+                    option.value = playlist.id;
+                    option.textContent = `${playlist.name} (${playlist.tracks} tracks)`;
+                    option.dataset.playlistName = playlist.name;
+                    playlistSelect.appendChild(option);
+                });
+                
+                playlistSelect.addEventListener('change', function() {
+                    document.getElementById('confirm-playlist-btn').disabled = !this.value;
+                });
+                
+                document.getElementById('confirm-playlist-btn').addEventListener('click', addTracksToSelectedPlaylist);
+                
+            } else {
+                document.querySelector('.modal-body').innerHTML = `
+                    <div class="alert alert-info">
+                        <p>You don't have any playlists. Create one first!</p>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            document.querySelector('.modal-body').innerHTML = `
+                <div class="alert alert-danger">
+                    <p>Failed to load playlists: ${error.message}</p>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            `;
+        });
+}
+
+function addTracksToSelectedPlaylist() {
+    const playlistSelect = document.getElementById('playlist-select');
+    const selectedOption = playlistSelect.options[playlistSelect.selectedIndex];
+    const playlistId = playlistSelect.value;
+    const playlistName = selectedOption.dataset.playlistName;
+    
+    if (!playlistId) {
+        alert('Please select a playlist first');
+        return;
+    }
+    
+    const clearLikes = confirm('Would you like to clear your liked songs after adding them to the playlist?');
+    
+    document.getElementById('confirm-playlist-btn').disabled = true;
+    document.getElementById('confirm-playlist-btn').innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...';
+    
+    fetch('./create_playlist.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            playlist_id: playlistId,
+            name: playlistName,
+            tracks: likedSongs.map(song => song.uri),
+            clear_liked_songs: clearLikes
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`Songs added to "${playlistName}" successfully!${data.skipped_tracks > 0 ? ' (' + data.skipped_tracks + ' duplicates skipped)' : ''}`);
+            
+            const modalElement = document.getElementById('playlist-modal');
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+            
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+            
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) {
+                backdrop.remove();
+            }
+            if (data.cleared_likes) {
+                likedSongs = [];
+                localStorage.removeItem('musicmatch_liked_songs');
+                updateLikedSongsList();
+            }
+        } else {
+            alert('Note: ' + (data.message || 'Some tracks were already in the playlist'));
+
+            try {
+                const modalInstance = bootstrap.Modal.getInstance(document.getElementById('playlist-modal'));
+                if (modalInstance) {
+                  modalInstance.hide();
+                }
+                setTimeout(cleanupModal, 300); // Short delay to let Bootstrap finish its animations
+              } catch (e) {
+                console.error('Error closing modal:', e);
+                cleanupModal();
+              }
+        }
+    })
+    .catch(error => {
+        console.error('Error adding songs:', error);
+        alert('Failed to add songs. Please try again.');
+        document.getElementById('confirm-playlist-btn').disabled = false;
+        document.getElementById('confirm-playlist-btn').textContent = 'Add to Selected Playlist';
     });
 }
 
-swipeMethod.addEventListener("change", updateForm);
-document.addEventListener("DOMContentLoaded", setInitialState);
+function cleanupModal() {
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+    
+    document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+        backdrop.remove();
+    });
+}
+
+
+function saveLikedSongs(songs) {
+    // Save to localStorage
+    localStorage.setItem('musicmatch_liked_songs', JSON.stringify(songs));
+    
+    // Save to session via AJAX
+    fetch('./save_liked_track.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({songs: songs})
+    }).catch(error => {
+        console.error('Error saving liked tracks:', error);
+    });
+}
+
+
+function initializeEvents() {
+    document.getElementById('like-button').addEventListener('click', () => handleSwipe('right'));
+    document.getElementById('dislike-button').addEventListener('click', () => handleSwipe('left'));
+    document.getElementById('create-playlist-btn').addEventListener('click', createPlaylist);
+    document.getElementById('add-to-playlist-btn').addEventListener('click', function() {
+        if (likedSongs.length === 0) {
+            alert('You need to like some songs first!');
+            return;
+        }
+        showPlaylistModal();
+    });
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowLeft') handleSwipe('left');
+        if (e.key === 'ArrowRight') handleSwipe('right');
+    });
+    
+    const swipeElement = document.getElementById('swipe-container');
+    if (swipeElement) {
+        const hammer = new Hammer(swipeElement);
+        hammer.on('swipeleft', () => handleSwipe('left'));
+        hammer.on('swiperight', () => handleSwipe('right'));
+    }
+    
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('hidden.bs.modal', cleanupModal);
+    });
+}
+
+function createPlaylist() {
+    if (likedSongs.length === 0) {
+        alert('You need to like some songs first!');
+        return;
+    }
+    
+    const playlistName = prompt('Enter a name for your playlist:', 'My MusicMatch Swiper Playlist');
+    if (!playlistName) return;
+    
+    const clearLikes = confirm('Would you like to clear your liked songs after creating the playlist?');
+    
+    fetch('./create_playlist.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            name: playlistName,
+            tracks: likedSongs.map(song => song.uri),
+            clear_liked_songs: clearLikes
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`Playlist "${playlistName}" created successfully!`);
+            
+            if (data.cleared_likes) {
+                likedSongs = [];
+                localStorage.removeItem('musicmatch_liked_songs');
+                updateLikedSongsList();
+            }
+        } else {
+            alert('Failed to create playlist: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error creating playlist:', error);
+        alert('Failed to create playlist. Please try again.');
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (initialLikedSongs && initialLikedSongs.length > 0) {
+        likedSongs = [...initialLikedSongs];
+        updateLikedSongsList();
+    }
+    
+    setInitialState();
+    initializeCards();
+    initializeEvents();
+});
