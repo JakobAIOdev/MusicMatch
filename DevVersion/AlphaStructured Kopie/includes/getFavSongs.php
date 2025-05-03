@@ -21,10 +21,8 @@ function getTopTracks($api){
         die('Error fetching tracks: ' . $e->getMessage());
     }
 
-    $trackUris = [];
     $trackData = [];
     foreach ($topTracks->items as $track) {
-        $trackUris[] = $track->uri;
         $trackData[] = [
             'uri' => $track->uri,
             'id' => $track->id,
@@ -39,8 +37,9 @@ function getTopTracks($api){
         ];
     }
 
-    return $tracksJson = json_encode($trackData);
+    $filteredTracks = filterSeenTracks($trackData, 'random');
+    shuffle($filteredTracks);
+    return json_encode($filteredTracks);
 }
-
 
 ?>

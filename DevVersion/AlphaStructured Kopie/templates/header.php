@@ -15,7 +15,7 @@
 
 <body>
     <header class="site-header">
-        <div class="container header-container">
+        <div class="header-container">
             <div class="site-logo"> <a href="index.php"> <img src="../assets/img/icons/musicmatch-logo.svg" alt="MusicMatch Logo"> <span>MusicMatch</span> </a> </div>
             <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle menu">
                 <span class="burger-menu">
@@ -30,7 +30,7 @@
                     <li><a href="../index.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'active' : ''; ?>">Home</a></li>
                     <li><a href="../features.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'features.php') ? 'active' : ''; ?>">Features</a></li>
                     <li><a href="../favorites.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'favorites.php') ? 'active' : ''; ?>">Favorites</a></li>
-                    <li><a href="../swiper.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'swiper.php') ? 'active' : ''; ?>">Music Swiper</a></li>
+                    <li><a href="../swiper.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'swiper.php') ? 'active' : ''; ?>">Swiper</a></li>
                     <li><a href="#" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'about.php') ? 'active' : ''; ?>">About</a></li>
                 </ul>
 

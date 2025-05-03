@@ -3,41 +3,53 @@ require_once './includes/session_handler.php';
 require_once './vendor/autoload.php';
 require_once './includes/spotify_utils.php';
 
-function filterSeenTracks($tracks) {
-    if (!isset($_SESSION['seen_track_ids'])) {
-        $_SESSION['seen_track_ids'] = [];
+function filterSeenTracks($tracks, $mode) {
+    $sessionKey = 'seen_track_ids_' . $mode;
+    
+    if (!isset($_SESSION[$sessionKey])) {
+        $_SESSION[$sessionKey] = [];
     }
     
     $filteredTracks = [];
     
     foreach ($tracks as $track) {
-        if (!in_array($track['id'], $_SESSION['seen_track_ids'])) {
+        if (!in_array($track['id'], $_SESSION[$sessionKey])) {
             $filteredTracks[] = $track;
-            $_SESSION['seen_track_ids'][] = $track['id'];
+            $_SESSION[$sessionKey][] = $track['id'];
         }
     }
+    
+    if (empty($filteredTracks) && !empty($tracks)) {
+        $_SESSION['notice'] = "You've already seen all tracks from this category. Showing them again.";
+        shuffle($tracks);
+        return $tracks;
+    }
+    
     return $filteredTracks;
 }
 
 function playlistTracks($api, $playlistLink){
-
+    // Extract playlist ID
     $playlistId = null;
     if (preg_match('/playlist\/([a-zA-Z0-9]+)/', $playlistLink, $matches)) {
         $playlistId = $matches[1];
     } else {
         die('Invalid playlist link');
     }
+    
     if (!$playlistId) {
         die('Invalid playlist link');
     }
+    
     $playlistTracks = $api->getPlaylistTracks($playlistId);
     if (isset($playlistTracks->error)) {
         die('Error fetching playlist tracks: ' . $playlistTracks->error->message);
     }
+    
     $trackData = [];
     foreach ($playlistTracks->items as $track) {
         $track = $track->track;
-
+        
         $trackData[] = [
             'uri' => $track->uri,
             'id' => $track->id,
@@ -52,11 +64,11 @@ function playlistTracks($api, $playlistLink){
         ];        
     }
     
-    $trackData = filterSeenTracks($trackData);
+    // Pass 'playlist_' followed by the playlist ID as the mode identifier
+    $trackData = filterSeenTracks($trackData, 'playlist_' . $playlistId);
     shuffle($trackData);
     return $tracksJson = json_encode($trackData);
 }
-
 
 function favoritesTracks($api, $time_range){
     $topItems = $api->getMyTop('tracks', [
@@ -80,14 +92,7 @@ function favoritesTracks($api, $time_range){
         ];        
     }
     
-    $filteredTracks = filterSeenTracks($trackData);
-    
-    if (empty($filteredTracks)) {
-        $_SESSION['notice'] = "You've already seen all tracks from this category. Showing them again.";
-        shuffle($trackData);
-        return json_encode($trackData);
-    }
-    
+    $filteredTracks = filterSeenTracks($trackData, 'favorites_' . $time_range);
     shuffle($filteredTracks);
     return json_encode($filteredTracks);
 }

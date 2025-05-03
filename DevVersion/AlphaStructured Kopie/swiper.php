@@ -9,6 +9,7 @@ require_once './includes/spotify_utils.php';
 require_once './templates/components/premium_notice.php';
 require_once './templates/components/login_notice.php';
 require_once './includes/swiperMethod.php';
+//require_once './debug_session.php';
 
 if (isset($_GET['swipe-method'])) {
     $swipeMethod = $_GET['swipe-method'];
