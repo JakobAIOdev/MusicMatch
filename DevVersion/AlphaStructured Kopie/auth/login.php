@@ -3,6 +3,16 @@ require_once '../includes/session_handler.php';
 require_once '../vendor/autoload.php';
 require_once '../includes/config.php';
 
+if (isset($_GET['redirect'])) {
+    $_SESSION['login_redirect'] = $_GET['redirect'];
+} else if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST']) !== false) {
+    $referer = parse_url($_SERVER['HTTP_REFERER']);
+    $path = $referer['path'];
+    if ($path !== '/auth/login.php' && $path !== '/auth/callback.php') {
+        $_SESSION['login_redirect'] = $path . (isset($referer['query']) ? '?' . $referer['query'] : '');
+    }
+}
+
 if (isLoggedIn()) {
     header('Location: ../index.php');
     exit;

@@ -5,30 +5,68 @@ $additionalCSS = '<link rel="stylesheet" href="./assets/css/swiper.css">';
 require_once './includes/session_handler.php';
 include "./templates/header.php";
 require_once './vendor/autoload.php';
+require_once './includes/config.php';
 require_once './includes/spotify_utils.php';
 require_once './templates/components/premium_notice.php';
 require_once './templates/components/login_notice.php';
 require_once './includes/swiperMethod.php';
-//require_once './debug_session.php';
+
+if (!isset($_SESSION['spotify_access_token']) || 
+    !isset($_SESSION['spotify_refresh_token'])) {
+    $_SESSION['login_redirect'] = $_SERVER['REQUEST_URI'];
+    header('Location: ./auth/login.php');
+    exit;
+}
+
+$api = new SpotifyWebAPI\SpotifyWebAPI(['auto_retry' => true]);
+$api->setAccessToken($_SESSION['spotify_access_token']);
+
+try {
+    $me = $api->me();
+} catch (Exception $e) {
+    try {
+        $session = new SpotifyWebAPI\Session(
+            $CLIENT_ID,
+            $CLIENT_SECRET,
+            $CALLBACK_URL
+        );
+        
+        $session->setRefreshToken($_SESSION['spotify_refresh_token']);
+        $refreshResult = $session->refreshAccessToken($_SESSION['spotify_refresh_token']);
+        
+        if (!$refreshResult) {
+            throw new Exception("Failed to refresh token");
+        }
+        
+        $_SESSION['spotify_access_token'] = $session->getAccessToken();
+        $_SESSION['spotify_token_expires'] = time() + $session->getTokenExpiration();
+        $api->setAccessToken($_SESSION['spotify_access_token']);
+        
+        $me = $api->me();
+    } catch (Exception $refreshError) {
+        unset($_SESSION['spotify_access_token']);
+        unset($_SESSION['spotify_refresh_token']);
+        
+        $_SESSION['login_redirect'] = $_SERVER['REQUEST_URI'];
+        header('Location: ./auth/login.php');
+        exit;
+    }
+}
+
+if (!isset($me) || !isset($me->product)) {
+    showLoginNotice();
+    die;
+}
+
+$hasPremium = ($me->product === 'premium');
+if (!$hasPremium) {
+    showPremiumNotice("Music Swiper");
+}
 
 if (isset($_GET['swipe-method'])) {
     $swipeMethod = $_GET['swipe-method'];
 } else {
     $swipeMethod = 'random';
-}
-
-if (!isLoggedIn()) {
-    showLoginNotice();
-    die;
-}
-
-$api = getSpotifyApi();
-$me = $api->me();
-
-$hasPremium = ($me->product === 'premium');
-
-if (!$hasPremium) {
-    showPremiumNotice("Music Swiper");
 }
 
 include './includes/getFavSongs.php';

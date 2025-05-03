@@ -38,8 +38,17 @@ if (isset($_GET['code'])) {
         $_SESSION['spotify_token_expires'] = time() + $session->getTokenExpiration();
         
         //error_log('User logged in: ' . $_SESSION['userData']['display_name']);
+        $_SESSION['spotify_access_token'] = $session->getAccessToken();
+        $_SESSION['spotify_refresh_token'] = $session->getRefreshToken();
+        $_SESSION['spotify_token_expires'] = time() + $session->getTokenExpiration();
         
-        header('Location: ../index.php');
+        $redirectTo = '../index.php';
+        if (isset($_SESSION['login_redirect'])) {
+            $redirectTo = $_SESSION['login_redirect'];
+            unset($_SESSION['login_redirect']);
+        }
+        
+        header('Location: ' . $redirectTo);
         exit;
     } catch (Exception $e) {
         error_log('Spotify API Error in callback: ' . $e->getMessage());
