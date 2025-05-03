@@ -58,6 +58,30 @@ body {
     font-size: 1rem;
 }
 
+.hero-btn-icon{
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#swipe-now-a{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+#swipe-now-a:hover #swipe-now-icon-hero {
+    filter: brightness(0) invert(1);
+}
+
+.down-arrow-container {
+    position: absolute;
+    margin-top: 7rem;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
 .section {
     padding: 80px 0;
 }

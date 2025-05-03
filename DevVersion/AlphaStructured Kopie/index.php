@@ -17,12 +17,20 @@ require_once './includes/spotify_utils.php';
             <p class="hero-subtitle">Discover new tracks, create personalized playlists,<br>
             and enjoy seamless Spotify integration all in one place.</p>
             <div class="hero-buttons">
-                <?php if (!isset($_SESSION['spotify_access_token'])): ?>
+                <?php /* if (!isset($_SESSION['spotify_access_token'])): ?>
                     <a href="auth/login.php" class="btn btn-accent">Login with Spotify</a>
                 <?php else: ?>
                     <a href="features.php" class="btn btn-accent">All Features</a>
-                <?php endif; ?>
-                <a href="swiper.php" class="btn btn-outline">Swipe Now</a>
+                <?php endif; */ ?>
+                <a href="swiper.php" class="btn btn-outline" id="swipe-now-a">
+                    <img id="swipe-now-icon-hero" class="hero-btn-icon" src="./assets/img/icons/swipe.svg" alt="">
+                    Swipe Now
+                </a>
+            </div>
+            <div class="down-arrow-container">
+                <a href="#features" class="down-arrow">
+                    <img src="./assets/img/icons/arrow-down.svg" alt="">
+                </a>
             </div>
         </div>
     </div>
@@ -100,11 +108,13 @@ require_once './includes/spotify_utils.php';
             <?php if (!isset($_SESSION['spotify_access_token'])): ?>
                 <a href="auth/login.php" class="btn btn-accent">Login with Spotify</a>
             <?php else: ?>
-                <a href="swiper.php" class="btn btn-accent">Go to Swiper</a>
+                <a href="swiper.php" class="btn btn-secondary">Go to Swiper</a>
             <?php endif; ?>
         </div>
     </div>
 </section>
+
+<script src="./assets/js/smoothscrolling.js"></script>
 
 <?php
 
