@@ -510,23 +510,6 @@ function updateForm(e) {
 
 swipeMethod.addEventListener("change", updateForm);
 
-function showPlaylistModal() {
-    document.querySelector(".modal-body").innerHTML = `
-        <div class="loading-spinner text-center py-4">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-2">Loading your playlists...</p>
-        </div>
-    `;
-    const playlistModal = new bootstrap.Modal(
-        document.getElementById("playlist-modal")
-    );
-    playlistModal.show();
-
-    fetchUserPlaylists();
-}
-
 function fetchUserPlaylists() {
     fetch("./get_playlists.php")
         .then((response) => {
@@ -591,99 +574,6 @@ function fetchUserPlaylists() {
         });
 }
 
-function addTracksToSelectedPlaylist() {
-    const playlistSelect = document.getElementById("playlist-select");
-    const selectedOption = playlistSelect.options[playlistSelect.selectedIndex];
-    const playlistId = playlistSelect.value;
-    const playlistName = selectedOption.dataset.playlistName;
-
-    if (!playlistId) {
-        alert("Please select a playlist first");
-        return;
-    }
-
-    const clearLikes = confirm(
-        "Would you like to clear your liked songs after adding them to the playlist?"
-    );
-
-    document.getElementById("confirm-playlist-btn").disabled = true;
-    document.getElementById("confirm-playlist-btn").innerHTML =
-        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...';
-
-    fetch("./create_playlist.php", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            playlist_id: playlistId,
-            name: playlistName,
-            tracks: likedSongs.map((song) => song.uri),
-            clear_liked_songs: clearLikes,
-        }),
-    })
-        .then((response) => response.json())
-        .then((data) => {
-            if (data.success) {
-                alert(
-                    `Songs added to "${playlistName}" successfully!${
-                        data.skipped_tracks > 0
-                            ? " (" +
-                              data.skipped_tracks +
-                              " duplicates skipped)"
-                            : ""
-                    }`
-                );
-
-                const modalElement = document.getElementById("playlist-modal");
-                const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                if (modalInstance) {
-                    modalInstance.hide();
-                }
-
-                document.body.classList.remove("modal-open");
-                document.body.style.overflow = "";
-                document.body.style.paddingRight = "";
-
-                const backdrop = document.querySelector(".modal-backdrop");
-                if (backdrop) {
-                    backdrop.remove();
-                }
-                if (data.cleared_likes) {
-                    likedSongs = [];
-                    localStorage.removeItem("musicmatch_liked_songs");
-                    updateLikedSongsList();
-                }
-            } else {
-                alert(
-                    "Note: " +
-                        (data.message ||
-                            "Some tracks were already in the playlist")
-                );
-
-                try {
-                    const modalInstance = bootstrap.Modal.getInstance(
-                        document.getElementById("playlist-modal")
-                    );
-                    if (modalInstance) {
-                        modalInstance.hide();
-                    }
-                    setTimeout(cleanupModal, 300);
-                } catch (e) {
-                    console.error("Error closing modal:", e);
-                    cleanupModal();
-                }
-            }
-        })
-        .catch((error) => {
-            console.error("Error adding songs:", error);
-            alert("Failed to add songs. Please try again.");
-            document.getElementById("confirm-playlist-btn").disabled = false;
-            document.getElementById("confirm-playlist-btn").textContent =
-                "Add to Selected Playlist";
-        });
-}
-
 function cleanupModal() {
     document.body.classList.remove("modal-open");
     document.body.style.overflow = "";
@@ -710,6 +600,262 @@ function saveLikedSongs(songs) {
     });
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+    const resetBtn = document.getElementById("reset-tracks-btn");
+    const resetConfirmation = document.getElementById("reset-confirmation");
+    const cancelResetBtn = document.getElementById("cancel-reset-btn");
+
+    const createBtn = document.getElementById("create-playlist-btn");
+    const createConfirmation = document.getElementById("create-playlist-confirmation");
+    const cancelCreateBtn = document.getElementById("cancel-create-btn");
+    const confirmCreateBtn = document.getElementById("confirm-create-btn");
+
+
+    const addBtn = document.getElementById("add-to-playlist-btn");
+    const addConfirmation = document.getElementById("add-to-playlist-confirmation");
+    const cancelAddBtn = document.getElementById("cancel-add-btn");
+    const confirmAddBtn = document.getElementById("confirm-add-btn");
+    const playlistSelect = document.getElementById("existing-playlist-select");
+
+
+    function hideAllConfirmations() {
+        resetConfirmation.style.display = "none";
+        createConfirmation.style.display = "none";
+        addConfirmation.style.display = "none";
+        
+
+        resetBtn.style.display = "block";
+        createBtn.style.display = "inline-block";
+        addBtn.style.display = "inline-block";
+    }
+
+    if (resetBtn) {
+        resetBtn.addEventListener("click", function () {
+            hideAllConfirmations();
+            resetConfirmation.style.display = "block";
+            resetBtn.style.display = "none";
+            createBtn.style.display = "none";
+            addBtn.style.display = "none";
+        });
+    }
+
+    if (cancelResetBtn) {
+        cancelResetBtn.addEventListener("click", function () {
+            resetConfirmation.style.display = "none";
+            
+            resetBtn.style.display = "block";
+            createBtn.style.display = "inline-block";
+            addBtn.style.display = "inline-block";
+        });
+    }
+
+
+    if (createBtn) {
+        createBtn.addEventListener("click", function () {
+            if (likedSongs.length === 0) {
+                alert("You need to like some songs first!");
+                return;
+            }
+
+            hideAllConfirmations();
+            createConfirmation.style.display = "block";
+            
+            createBtn.style.display = "none";
+            addBtn.style.display = "none";
+            resetBtn.style.display = "none";
+        });
+    }
+
+    if (cancelCreateBtn) {
+        cancelCreateBtn.addEventListener("click", function () {
+            createConfirmation.style.display = "none";
+
+            createBtn.style.display = "inline-block";
+            addBtn.style.display = "inline-block";
+            resetBtn.style.display = "block";
+        });
+    }
+
+
+    if (addBtn) {
+        addBtn.addEventListener("click", function () {
+            if (likedSongs.length === 0) {
+                alert("You need to like some songs first!");
+                return;
+            }
+
+            hideAllConfirmations();
+            addConfirmation.style.display = "block";
+
+            addBtn.style.display = "none";
+            createBtn.style.display = "none";
+            resetBtn.style.display = "none";
+
+
+            playlistSelect.innerHTML = '<option value="" disabled selected>Loading playlists...</option>';
+            confirmAddBtn.disabled = true;
+
+            fetch("./get_playlists.php")
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("Server returned status " + response.status);
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    playlistSelect.innerHTML = '<option value="" disabled selected>Select a playlist...</option>';
+
+                    if (data.success && data.playlists && data.playlists.length > 0) {
+                        data.playlists.forEach((playlist) => {
+                            const option = document.createElement("option");
+                            option.value = playlist.id;
+                            option.textContent = `${playlist.name} (${playlist.tracks} tracks)`;
+                            option.dataset.playlistName = playlist.name;
+                            playlistSelect.appendChild(option);
+                        });
+                    } else {
+                        playlistSelect.innerHTML = '<option value="" disabled selected>No playlists available</option>';
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error loading playlists:", error);
+                    playlistSelect.innerHTML = '<option value="" disabled selected>Error loading playlists</option>';
+                });
+        });
+    }
+
+    if (cancelAddBtn) {
+        cancelAddBtn.addEventListener("click", function () {
+            addConfirmation.style.display = "none";
+            
+            addBtn.style.display = "inline-block";
+            createBtn.style.display = "inline-block";
+            resetBtn.style.display = "block";
+        });
+    }
+
+
+    if (playlistSelect) {
+        playlistSelect.addEventListener("change", function () {
+            confirmAddBtn.disabled = !this.value;
+        });
+    }
+
+    if (confirmAddBtn) {
+        confirmAddBtn.addEventListener("click", function () {
+            const selectedOption = playlistSelect.options[playlistSelect.selectedIndex];
+            const playlistId = playlistSelect.value;
+            const playlistName = selectedOption.dataset.playlistName;
+
+            if (!playlistId) {
+                alert("Please select a playlist first");
+                return;
+            }
+
+            const clearLikes = document.getElementById("clear-liked-songs-add").checked;
+
+            confirmAddBtn.disabled = true;
+            confirmAddBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...';
+
+            fetch("./create_playlist.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    playlist_id: playlistId,
+                    name: playlistName,
+                    tracks: likedSongs.map((song) => song.uri),
+                    clear_liked_songs: clearLikes,
+                }),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        alert(`Songs added to "${playlistName}" successfully!${
+                            data.skipped_tracks > 0
+                                ? " (" + data.skipped_tracks + " duplicates skipped)"
+                                : ""
+                        }`);
+
+                        if (data.cleared_likes) {
+                            likedSongs = [];
+                            localStorage.removeItem("musicmatch_liked_songs");
+                            updateLikedSongsList();
+                        }
+
+                        addConfirmation.style.display = "none";
+                        addBtn.style.display = "inline-block";
+                        createBtn.style.display = "inline-block";
+                    } else {
+                        alert("Note: " + (data.message || "Some tracks were already in the playlist"));
+                    }
+                    confirmAddBtn.disabled = false;
+                    confirmAddBtn.innerHTML = "Add to Playlist";
+                })
+                .catch((error) => {
+                    console.error("Error adding songs:", error);
+                    alert("Failed to add songs. Please try again.");
+                    confirmAddBtn.disabled = false;
+                    confirmAddBtn.innerHTML = "Add to Playlist";
+                });
+        });
+    }
+
+    if (confirmCreateBtn) {
+        confirmCreateBtn.addEventListener("click", function () {
+            const playlistName = document.getElementById("playlist-name").value;
+            if (!playlistName.trim()) {
+                alert("Please enter a playlist name");
+                return;
+            }
+
+            const clearLikes = document.getElementById("clear-liked-songs").checked;
+
+            confirmCreateBtn.disabled = true;
+            confirmCreateBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...';
+
+            fetch("./create_playlist.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: playlistName,
+                    tracks: likedSongs.map((song) => song.uri),
+                    clear_liked_songs: clearLikes,
+                }),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        alert(`Playlist "${playlistName}" created successfully!`);
+
+                        if (data.cleared_likes) {
+                            likedSongs = [];
+                            localStorage.removeItem("musicmatch_liked_songs");
+                            updateLikedSongsList();
+                        }
+
+                        createConfirmation.style.display = "none";
+                        createBtn.style.display = "inline-block";
+                        addBtn.style.display = "inline-block";
+                    } else {
+                        alert("Failed to create playlist: " + data.message);
+                    }
+                    confirmCreateBtn.disabled = false;
+                    confirmCreateBtn.innerHTML = "Create Playlist";
+                })
+                .catch((error) => {
+                    console.error("Error creating playlist:", error);
+                    alert("Failed to create playlist. Please try again.");
+                    confirmCreateBtn.disabled = false;
+                    confirmCreateBtn.innerHTML = "Create Playlist";
+                });
+        });
+    }
+});
+
 function initializeEvents() {
     document
         .getElementById("like-button")
@@ -717,73 +863,11 @@ function initializeEvents() {
     document
         .getElementById("dislike-button")
         .addEventListener("click", () => handleSwipe("left"));
-    document
-        .getElementById("create-playlist-btn")
-        .addEventListener("click", createPlaylist);
-    document
-        .getElementById("add-to-playlist-btn")
-        .addEventListener("click", function () {
-            if (likedSongs.length === 0) {
-                alert("You need to like some songs first!");
-                return;
-            }
-            showPlaylistModal();
-        });
 
     document.addEventListener("keydown", function (e) {
         if (e.key === "ArrowLeft") handleSwipe("left");
         if (e.key === "ArrowRight") handleSwipe("right");
     });
-    document.querySelectorAll(".modal").forEach((modal) => {
-        modal.addEventListener("hidden.bs.modal", cleanupModal);
-    });
-}
-
-function createPlaylist() {
-    if (likedSongs.length === 0) {
-        alert("You need to like some songs first!");
-        return;
-    }
-
-    const playlistName = prompt(
-        "Enter a name for your playlist:",
-        "My MusicMatch Swiper Playlist"
-    );
-    if (!playlistName) return;
-
-    const clearLikes = confirm(
-        "Would you like to clear your liked songs after creating the playlist?"
-    );
-
-    fetch("./create_playlist.php", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            name: playlistName,
-            tracks: likedSongs.map((song) => song.uri),
-            clear_liked_songs: clearLikes,
-        }),
-    })
-        .then((response) => response.json())
-        .then((data) => {
-            if (data.success) {
-                alert(`Playlist "${playlistName}" created successfully!`);
-
-                if (data.cleared_likes) {
-                    likedSongs = [];
-                    localStorage.removeItem("musicmatch_liked_songs");
-                    updateLikedSongsList();
-                }
-            } else {
-                alert("Failed to create playlist: " + data.message);
-            }
-        })
-        .catch((error) => {
-            console.error("Error creating playlist:", error);
-            alert("Failed to create playlist. Please try again.");
-        });
 }
 
 document.addEventListener("DOMContentLoaded", function () {

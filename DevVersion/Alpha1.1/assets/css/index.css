@@ -134,10 +134,6 @@ body {
     margin: 0 auto 20px;
 }
 
-.feature-icon i {
-    font-size: 28px;
-    color: var(--primary);
-}
 
 .feature-icon img {
     width: 40px;

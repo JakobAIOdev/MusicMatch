@@ -11,8 +11,10 @@ require_once './templates/components/premium_notice.php';
 require_once './templates/components/login_notice.php';
 require_once './includes/swiperMethod.php';
 
-if (!isset($_SESSION['spotify_access_token']) || 
-    !isset($_SESSION['spotify_refresh_token'])) {
+if (
+    !isset($_SESSION['spotify_access_token']) ||
+    !isset($_SESSION['spotify_refresh_token'])
+) {
     $_SESSION['login_redirect'] = $_SERVER['REQUEST_URI'];
     header('Location: ./auth/login.php');
     exit;
@@ -30,23 +32,23 @@ try {
             $CLIENT_SECRET,
             $CALLBACK_URL
         );
-        
+
         $session->setRefreshToken($_SESSION['spotify_refresh_token']);
         $refreshResult = $session->refreshAccessToken($_SESSION['spotify_refresh_token']);
-        
+
         if (!$refreshResult) {
             throw new Exception("Failed to refresh token");
         }
-        
+
         $_SESSION['spotify_access_token'] = $session->getAccessToken();
         $_SESSION['spotify_token_expires'] = time() + $session->getTokenExpiration();
         $api->setAccessToken($_SESSION['spotify_access_token']);
-        
+
         $me = $api->me();
     } catch (Exception $refreshError) {
         unset($_SESSION['spotify_access_token']);
         unset($_SESSION['spotify_refresh_token']);
-        
+
         $_SESSION['login_redirect'] = $_SERVER['REQUEST_URI'];
         header('Location: ./auth/login.php');
         exit;
@@ -78,8 +80,6 @@ include './includes/getFavSongs.php';
         <h1>Music Swiper</h1>
 
         <div class="swipe-instructions">
-            <p>Swipe right to like, left to dislike.<br>
-                Or use the arrow keys ← → or the buttons below.</p>
             <div class="swipe-method-container">
                 <form method="GET" action="swiper.php" id="swipe-form">
                     <div class="form-row">
@@ -117,33 +117,73 @@ include './includes/getFavSongs.php';
                 <img src="./assets/img/icons/like.svg" alt="Like">
             </button>
         </div>
-        <div class="reset-container">
-            <a href="reset_seen_tracks.php<?php echo !empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : ''; ?>" class="btn btn-secondary">
-                <i class="fas fa-sync"></i> Reset Seen Tracks
-            </a>
-        </div>
-        <div class="create-playlist-container">
-            <button id="create-playlist-btn" class="btn btn-primary">
-                <i class="fas fa-plus-circle"></i> Create Playlist from Liked Songs
-            </button>
-            <button id="add-to-playlist-btn" class="btn btn-outline-primary">
-                <i class="fas fa-plus"></i> Add to Existing Playlist
-            </button>
-        </div>
         <div class="modal fade" id="playlist-modal" tabindex="-1" aria-labelledby="playlist-modal-label" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="playlist-modal-label">Select a Playlist</h5>
+                        <h5 class="modal-title" id="playlist-modal-label">Add to Playlist</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <!-- Playlists will appear here -->
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <!-- Content will appear here -->
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="control-buttons-row">
+    <button id="create-playlist-btn" class="control-btn create-btn">
+        <img id="add-playlist-icon" class="fas" src="./assets/img/icons/addPlaylist.svg" alt="">
+        <span>Create Playlist</span>
+    </button>
+    
+    <button id="add-to-playlist-btn" class="control-btn add-btn">
+        <img id="create-playlist-icon" class="fas" src="./assets/img/icons/createPlaylist.svg" alt="">
+        <span>Add to Playlist</span>
+    </button>
+    
+    <button id="reset-tracks-btn" class="control-btn reset-btn">
+        <img id="reset-playlist-icon" class="fas" src="./assets/img/icons/reset.svg" alt="">
+        <span>Reset</span>
+    </button>
+</div>
+        
+        <!-- Keep your existing confirmation divs, just move them here -->
+        <div id="reset-confirmation" style="display: none;" class="confirmation-panel">
+            <p class="text-danger">Are you sure you want to reset all seen tracks? This cannot be undone.</p>
+            <div class="confirmation-buttons">
+                <a href="reset_seen_tracks.php<?php echo !empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : ''; ?>" class="btn btn-sm btn-danger">Reset</a>
+                <button type="button" class="btn btn-sm btn-secondary" id="cancel-reset-btn">Cancel</button>
+            </div>
+        </div>
+        
+        <div id="create-playlist-confirmation" style="display: none;" class="confirmation-panel">
+            <div class="form-group mb-3">
+                <input type="text" id="playlist-name" class="form-control" placeholder="Playlist name" value="My MusicMatch Swiper Playlist">
+            </div>
+            <div class="form-check mb-3">
+                <input type="checkbox" id="clear-liked-songs" class="form-check-input">
+                <label class="form-check-label" for="clear-liked-songs">Clear liked songs after creating</label>
+            </div>
+            <div class="confirmation-buttons">
+                <button type="button" class="btn btn-sm btn-primary" id="confirm-create-btn">Create Playlist</button>
+                <button type="button" class="btn btn-sm btn-secondary" id="cancel-create-btn">Cancel</button>
+            </div>
+        </div>
+        
+        <div id="add-to-playlist-confirmation" style="display: none;" class="confirmation-panel">
+            <div class="form-group mb-3">
+                <label for="existing-playlist-select" class="form-label">Select playlist:</label>
+                <select class="form-select" id="existing-playlist-select">
+                    <option value="" disabled selected>Loading playlists...</option>
+                </select>
+            </div>
+            <div class="form-check mb-3">
+                <input type="checkbox" id="clear-liked-songs-add" class="form-check-input">
+                <label class="form-check-label" for="clear-liked-songs-add">Clear liked songs after adding</label>
+            </div>
+            <div class="confirmation-buttons">
+                <button type="button" class="btn btn-sm btn-primary" id="confirm-add-btn" disabled>Add to Playlist</button>
+                <button type="button" class="btn btn-sm btn-secondary" id="cancel-add-btn">Cancel</button>
             </div>
         </div>
         <div class="liked-songs-container">
