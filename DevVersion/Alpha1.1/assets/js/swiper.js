@@ -73,7 +73,7 @@ function createCard(track) {
             
         <div class="card-content">
             <div>
-                <h2 class="card-title">${track.name}</h2>
+                <h2 class="card-title text-center">${track.name}</h2>
                 <p class="card-artist">${track.artist}</p>
                 <p class="card-album">${track.album}</p>
                 <a href="${track.spotify_url}" class="spotify-button" target="_blank">
@@ -551,29 +551,30 @@ document.addEventListener("DOMContentLoaded", function () {
         resetConfirmation.style.display = "none";
         createConfirmation.style.display = "none";
         addConfirmation.style.display = "none";
-
-        resetBtn.style.display = "block";
-        createBtn.style.display = "inline-block";
-        addBtn.style.display = "inline-block";
+        
+        resetBtn.classList.remove("button-hidden");
+        createBtn.classList.remove("button-hidden");
+        addBtn.classList.remove("button-hidden");
     }
 
     if (resetBtn) {
         resetBtn.addEventListener("click", function () {
             hideAllConfirmations();
             resetConfirmation.style.display = "block";
-            resetBtn.style.display = "none";
-            createBtn.style.display = "none";
-            addBtn.style.display = "none";
+            
+            resetBtn.classList.add("button-hidden");
+            createBtn.classList.add("button-hidden");
+            addBtn.classList.add("button-hidden");
         });
     }
 
     if (cancelResetBtn) {
         cancelResetBtn.addEventListener("click", function () {
             resetConfirmation.style.display = "none";
-
-            resetBtn.style.display = "block";
-            createBtn.style.display = "inline-block";
-            addBtn.style.display = "inline-block";
+            
+            resetBtn.classList.remove("button-hidden");
+            createBtn.classList.remove("button-hidden");
+            addBtn.classList.remove("button-hidden");
         });
     }
 
@@ -583,23 +584,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 alert("You need to like some songs first!");
                 return;
             }
-
+    
             hideAllConfirmations();
             createConfirmation.style.display = "block";
-
-            createBtn.style.display = "none";
-            addBtn.style.display = "none";
-            resetBtn.style.display = "none";
+            createBtn.classList.add("button-hidden");
+            addBtn.classList.add("button-hidden");
+            resetBtn.classList.add("button-hidden");
         });
     }
 
     if (cancelCreateBtn) {
         cancelCreateBtn.addEventListener("click", function () {
             createConfirmation.style.display = "none";
-
-            createBtn.style.display = "inline-block";
-            addBtn.style.display = "inline-block";
-            resetBtn.style.display = "block";
+            createBtn.classList.remove("button-hidden");
+            addBtn.classList.remove("button-hidden");
+            resetBtn.classList.remove("button-hidden");
         });
     }
 
@@ -613,12 +612,11 @@ document.addEventListener("DOMContentLoaded", function () {
             hideAllConfirmations();
             addConfirmation.style.display = "block";
 
-            addBtn.style.display = "none";
-            createBtn.style.display = "none";
-            resetBtn.style.display = "none";
+            addBtn.classList.add("button-hidden");
+            createBtn.classList.add("button-hidden");
+            resetBtn.classList.add("button-hidden");
 
-            playlistSelect.innerHTML =
-                '<option value="" disabled selected>Loading playlists...</option>';
+            playlistSelect.innerHTML = '<option value="" disabled selected>Loading playlists...</option>';
             confirmAddBtn.disabled = true;
 
             fetch("./get_playlists.php")
@@ -663,9 +661,9 @@ document.addEventListener("DOMContentLoaded", function () {
         cancelAddBtn.addEventListener("click", function () {
             addConfirmation.style.display = "none";
 
-            addBtn.style.display = "inline-block";
-            createBtn.style.display = "inline-block";
-            resetBtn.style.display = "block";
+            addBtn.classList.remove("button-hidden");
+            createBtn.classList.remove("button-hidden");
+            resetBtn.classList.remove("button-hidden");
         });
     }
 
@@ -710,25 +708,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.success) {
-                        alert(
-                            `Songs added to "${playlistName}" successfully!${
-                                data.skipped_tracks > 0
-                                    ? " (" +
-                                      data.skipped_tracks +
-                                      " duplicates skipped)"
-                                    : ""
-                            }`
-                        );
-
+                        alert(`Songs added to "${playlistName}" successfully!${
+                            data.skipped_tracks > 0
+                                ? " (" + data.skipped_tracks + " duplicates skipped)"
+                                : ""
+                        }`);
+        
                         if (data.cleared_likes) {
                             likedSongs = [];
                             localStorage.removeItem("musicmatch_liked_songs");
                             updateLikedSongsList();
                         }
-
+        
                         addConfirmation.style.display = "none";
-                        addBtn.style.display = "inline-block";
-                        createBtn.style.display = "inline-block";
+                        
+                        addBtn.classList.remove("button-hidden");
+                        createBtn.classList.remove("button-hidden");
+                        resetBtn.classList.remove("button-hidden");
                     } else {
                         alert(
                             "Note: " +
@@ -777,19 +773,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.success) {
-                        alert(
-                            `Playlist "${playlistName}" created successfully!`
-                        );
-
+                        alert(`Playlist "${playlistName}" created successfully!`);
+        
                         if (data.cleared_likes) {
                             likedSongs = [];
                             localStorage.removeItem("musicmatch_liked_songs");
                             updateLikedSongsList();
                         }
-
+        
                         createConfirmation.style.display = "none";
-                        createBtn.style.display = "inline-block";
-                        addBtn.style.display = "inline-block";
+                        createBtn.classList.remove("button-hidden");
+                        addBtn.classList.remove("button-hidden");
+                        resetBtn.classList.remove("button-hidden");
                     } else {
                         alert("Failed to create playlist: " + data.message);
                     }

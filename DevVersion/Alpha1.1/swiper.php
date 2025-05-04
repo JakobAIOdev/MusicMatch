@@ -76,9 +76,7 @@ include './includes/getFavSongs.php';
 
 <div class="main-content">
     <div class="maincontainer-swiper">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
         <h1 class="text-center">Music Swiper</h1>
-
         <div class="swipe-instructions">
             <div class="swipe-method-container">
                 <form method="GET" action="swiper.php" id="swipe-form">
@@ -108,7 +106,6 @@ include './includes/getFavSongs.php';
         <div class="swipe-container" id="swipe-container">
             <!-- Cards will appear here -->
         </div>
-
         <div class="action-buttons">
             <button class="action-button dislike-button" id="dislike-button">
                 <img src="./assets/img/icons/dislike.svg" alt="Dislike">
@@ -171,6 +168,7 @@ include './includes/getFavSongs.php';
                 <button type="button" class="btn btn-sm btn-secondary" id="cancel-add-btn">Cancel</button>
             </div>
         </div>
+        
         <div class="liked-songs-container">
             <h2>Your Liked Songs</h2>
             <ul class="liked-songs-list" id="liked-songs-list">

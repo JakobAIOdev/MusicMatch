@@ -743,3 +743,7 @@ input[type="range"]::-webkit-slider-thumb {
     width: 28px;
     height: 28px;
 }
+
+.button-hidden {
+    display: none !important;
+}
