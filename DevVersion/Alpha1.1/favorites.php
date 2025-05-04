@@ -87,7 +87,6 @@ $time_descriptions = [
     'long_term' => 'Several years'
 ];
 ?>
-<body>
     <section>
         <h1>Your Top <?php echo ucfirst($view_type); ?> on Spotify</h1>
         
@@ -129,7 +128,10 @@ $time_descriptions = [
                                 ?></p>
                                 <p>Album: <?php echo htmlspecialchars($item->album->name); ?></p>
                             <?php endif; ?>
-                            <a href="<?php echo $item->external_urls->spotify; ?>" class="spotify-link">Open on Spotify</a>
+                            <a href="<?php echo $item->external_urls->spotify; ?>" class="spotify-button" target="_blank">
+                                <img class="spotify-icon" src="./assets/img/icons/spotify-primary-white.svg" alt="Spotify">
+                                <span>Listen on Spotify</span>
+                            </a>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -138,6 +140,5 @@ $time_descriptions = [
             <?php endif; ?>
         </div>
     </section>
-</body>
 
 <?php include "./templates/footer.php" ?>

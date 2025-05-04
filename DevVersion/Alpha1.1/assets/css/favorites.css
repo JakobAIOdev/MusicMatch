@@ -88,26 +88,11 @@ section {
     font-size: 0.95rem;
 }
 
-.spotify-link {
-    display: inline-block;
-    margin-top: 15px;
-    padding: 8px 16px;
-    background: #1DB954;
-    color: white;
-    text-decoration: none;
-    border-radius: 20px;
-    font-weight: bold;
-    transition: background 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 2px 5px rgba(29, 185, 84, 0.3);
-}
-
-.spotify-link:hover {
-    background: #19a34a;
-    transform: scale(1.03);
-}
-
-.item-info a:hover {
-    color: rgb(187, 187, 187);
+.spotify-button {
+    padding: 10px 16px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    width: fit-content;
 }
 
 /* Time range indicator styling */

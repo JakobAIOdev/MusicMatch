@@ -77,7 +77,8 @@ function createCard(track) {
                 <p class="card-artist">${track.artist}</p>
                 <p class="card-album">${track.album}</p>
                 <a href="${track.spotify_url}" class="spotify-button" target="_blank">
-                    <i class="fab fa-spotify"></i> Listen on Spotify
+                    <img class="spotify-icon" src="./assets/img/icons/spotify-primary-white.svg" alt="Spotify">
+                    <span>Listen on Spotify</span>
                 </a>
             </div>
         </div>
@@ -202,7 +203,7 @@ function updateLikedSongsList() {
                 <i class="fas fa-play"></i>
             </button>
             <a href="${song.spotify_url}" class="liked-song-spotify" target="_blank">
-                <i class="fab fa-spotify"></i>
+                <img class="spotify-icon-sm" src="./assets/img/icons/spotify-primary-green.svg" alt="Open on Spotify">
             </a>
         `;
 
@@ -510,80 +511,6 @@ function updateForm(e) {
 
 swipeMethod.addEventListener("change", updateForm);
 
-function fetchUserPlaylists() {
-    fetch("./get_playlists.php")
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error("Server returned status " + response.status);
-            }
-            return response.json();
-        })
-        .then((data) => {
-            if (data.success && data.playlists && data.playlists.length > 0) {
-                document.querySelector(".modal-body").innerHTML = `
-                    <div class="mb-3">
-                        <label for="playlist-select" class="form-label">Choose a playlist:</label>
-                        <select class="form-select" id="playlist-select">
-                            <option value="" disabled selected>Select a playlist...</option>
-                        </select>
-                    </div>
-                    <div class="d-grid gap-2">
-                        <button type="button" class="btn btn-primary" id="confirm-playlist-btn" disabled>Add to Selected Playlist</button>
-                    </div>
-                `;
-
-                const playlistSelect =
-                    document.getElementById("playlist-select");
-
-                data.playlists.forEach((playlist) => {
-                    const option = document.createElement("option");
-                    option.value = playlist.id;
-                    option.textContent = `${playlist.name} (${playlist.tracks} tracks)`;
-                    option.dataset.playlistName = playlist.name;
-                    playlistSelect.appendChild(option);
-                });
-
-                playlistSelect.addEventListener("change", function () {
-                    document.getElementById("confirm-playlist-btn").disabled =
-                        !this.value;
-                });
-
-                document
-                    .getElementById("confirm-playlist-btn")
-                    .addEventListener("click", addTracksToSelectedPlaylist);
-            } else {
-                document.querySelector(".modal-body").innerHTML = `
-                    <div class="alert alert-info">
-                        <p>You don't have any playlists. Create one first!</p>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                `;
-            }
-        })
-        .catch((error) => {
-            document.querySelector(".modal-body").innerHTML = `
-                <div class="alert alert-danger">
-                    <p>Failed to load playlists: ${error.message}</p>
-                </div>
-                <div class="d-flex justify-content-center">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            `;
-        });
-}
-
-function cleanupModal() {
-    document.body.classList.remove("modal-open");
-    document.body.style.overflow = "";
-    document.body.style.paddingRight = "";
-
-    document.querySelectorAll(".modal-backdrop").forEach((backdrop) => {
-        backdrop.remove();
-    });
-}
-
 function saveLikedSongs(songs) {
     // Save to localStorage
     localStorage.setItem("musicmatch_liked_songs", JSON.stringify(songs));
@@ -606,23 +533,24 @@ document.addEventListener("DOMContentLoaded", function () {
     const cancelResetBtn = document.getElementById("cancel-reset-btn");
 
     const createBtn = document.getElementById("create-playlist-btn");
-    const createConfirmation = document.getElementById("create-playlist-confirmation");
+    const createConfirmation = document.getElementById(
+        "create-playlist-confirmation"
+    );
     const cancelCreateBtn = document.getElementById("cancel-create-btn");
     const confirmCreateBtn = document.getElementById("confirm-create-btn");
 
-
     const addBtn = document.getElementById("add-to-playlist-btn");
-    const addConfirmation = document.getElementById("add-to-playlist-confirmation");
+    const addConfirmation = document.getElementById(
+        "add-to-playlist-confirmation"
+    );
     const cancelAddBtn = document.getElementById("cancel-add-btn");
     const confirmAddBtn = document.getElementById("confirm-add-btn");
     const playlistSelect = document.getElementById("existing-playlist-select");
-
 
     function hideAllConfirmations() {
         resetConfirmation.style.display = "none";
         createConfirmation.style.display = "none";
         addConfirmation.style.display = "none";
-        
 
         resetBtn.style.display = "block";
         createBtn.style.display = "inline-block";
@@ -642,13 +570,12 @@ document.addEventListener("DOMContentLoaded", function () {
     if (cancelResetBtn) {
         cancelResetBtn.addEventListener("click", function () {
             resetConfirmation.style.display = "none";
-            
+
             resetBtn.style.display = "block";
             createBtn.style.display = "inline-block";
             addBtn.style.display = "inline-block";
         });
     }
-
 
     if (createBtn) {
         createBtn.addEventListener("click", function () {
@@ -659,7 +586,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             hideAllConfirmations();
             createConfirmation.style.display = "block";
-            
+
             createBtn.style.display = "none";
             addBtn.style.display = "none";
             resetBtn.style.display = "none";
@@ -676,7 +603,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-
     if (addBtn) {
         addBtn.addEventListener("click", function () {
             if (likedSongs.length === 0) {
@@ -691,21 +617,28 @@ document.addEventListener("DOMContentLoaded", function () {
             createBtn.style.display = "none";
             resetBtn.style.display = "none";
 
-
-            playlistSelect.innerHTML = '<option value="" disabled selected>Loading playlists...</option>';
+            playlistSelect.innerHTML =
+                '<option value="" disabled selected>Loading playlists...</option>';
             confirmAddBtn.disabled = true;
 
             fetch("./get_playlists.php")
                 .then((response) => {
                     if (!response.ok) {
-                        throw new Error("Server returned status " + response.status);
+                        throw new Error(
+                            "Server returned status " + response.status
+                        );
                     }
                     return response.json();
                 })
                 .then((data) => {
-                    playlistSelect.innerHTML = '<option value="" disabled selected>Select a playlist...</option>';
+                    playlistSelect.innerHTML =
+                        '<option value="" disabled selected>Select a playlist...</option>';
 
-                    if (data.success && data.playlists && data.playlists.length > 0) {
+                    if (
+                        data.success &&
+                        data.playlists &&
+                        data.playlists.length > 0
+                    ) {
                         data.playlists.forEach((playlist) => {
                             const option = document.createElement("option");
                             option.value = playlist.id;
@@ -714,12 +647,14 @@ document.addEventListener("DOMContentLoaded", function () {
                             playlistSelect.appendChild(option);
                         });
                     } else {
-                        playlistSelect.innerHTML = '<option value="" disabled selected>No playlists available</option>';
+                        playlistSelect.innerHTML =
+                            '<option value="" disabled selected>No playlists available</option>';
                     }
                 })
                 .catch((error) => {
                     console.error("Error loading playlists:", error);
-                    playlistSelect.innerHTML = '<option value="" disabled selected>Error loading playlists</option>';
+                    playlistSelect.innerHTML =
+                        '<option value="" disabled selected>Error loading playlists</option>';
                 });
         });
     }
@@ -727,13 +662,12 @@ document.addEventListener("DOMContentLoaded", function () {
     if (cancelAddBtn) {
         cancelAddBtn.addEventListener("click", function () {
             addConfirmation.style.display = "none";
-            
+
             addBtn.style.display = "inline-block";
             createBtn.style.display = "inline-block";
             resetBtn.style.display = "block";
         });
     }
-
 
     if (playlistSelect) {
         playlistSelect.addEventListener("change", function () {
@@ -743,7 +677,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (confirmAddBtn) {
         confirmAddBtn.addEventListener("click", function () {
-            const selectedOption = playlistSelect.options[playlistSelect.selectedIndex];
+            const selectedOption =
+                playlistSelect.options[playlistSelect.selectedIndex];
             const playlistId = playlistSelect.value;
             const playlistName = selectedOption.dataset.playlistName;
 
@@ -752,10 +687,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            const clearLikes = document.getElementById("clear-liked-songs-add").checked;
+            const clearLikes = document.getElementById(
+                "clear-liked-songs-add"
+            ).checked;
 
             confirmAddBtn.disabled = true;
-            confirmAddBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...';
+            confirmAddBtn.innerHTML =
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...';
 
             fetch("./create_playlist.php", {
                 method: "POST",
@@ -772,11 +710,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.success) {
-                        alert(`Songs added to "${playlistName}" successfully!${
-                            data.skipped_tracks > 0
-                                ? " (" + data.skipped_tracks + " duplicates skipped)"
-                                : ""
-                        }`);
+                        alert(
+                            `Songs added to "${playlistName}" successfully!${
+                                data.skipped_tracks > 0
+                                    ? " (" +
+                                      data.skipped_tracks +
+                                      " duplicates skipped)"
+                                    : ""
+                            }`
+                        );
 
                         if (data.cleared_likes) {
                             likedSongs = [];
@@ -788,7 +730,11 @@ document.addEventListener("DOMContentLoaded", function () {
                         addBtn.style.display = "inline-block";
                         createBtn.style.display = "inline-block";
                     } else {
-                        alert("Note: " + (data.message || "Some tracks were already in the playlist"));
+                        alert(
+                            "Note: " +
+                                (data.message ||
+                                    "Some tracks were already in the playlist")
+                        );
                     }
                     confirmAddBtn.disabled = false;
                     confirmAddBtn.innerHTML = "Add to Playlist";
@@ -810,10 +756,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            const clearLikes = document.getElementById("clear-liked-songs").checked;
+            const clearLikes =
+                document.getElementById("clear-liked-songs").checked;
 
             confirmCreateBtn.disabled = true;
-            confirmCreateBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...';
+            confirmCreateBtn.innerHTML =
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...';
 
             fetch("./create_playlist.php", {
                 method: "POST",
@@ -829,7 +777,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.success) {
-                        alert(`Playlist "${playlistName}" created successfully!`);
+                        alert(
+                            `Playlist "${playlistName}" created successfully!`
+                        );
 
                         if (data.cleared_likes) {
                             likedSongs = [];
