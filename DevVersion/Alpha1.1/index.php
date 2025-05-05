@@ -10,7 +10,7 @@ require_once './includes/spotify_utils.php';
 
 ?>
 
-<section class="hero-section">
+<section class="hero-section visible">
     <div class="container">
         <div class="hero-content">
             <h1 class="hero-title">Best <span>MusicSwiper</span> for <br> Tailored Listening Experiences</h1>
@@ -113,7 +113,7 @@ require_once './includes/spotify_utils.php';
         </div>
     </div>
 </section>
-
+<script src="./assets/js/animations.js"></script>
 <script src="./assets/js/smoothscrolling.js"></script>
 
 <?php

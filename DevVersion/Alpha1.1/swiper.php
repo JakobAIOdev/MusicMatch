@@ -170,7 +170,7 @@ include './includes/getFavSongs.php';
         </div>
         
         <div class="liked-songs-container">
-            <h2>Your Liked Songs</h2>
+            <h2 class="text-center">Your Liked Songs</h2>
             <ul class="liked-songs-list" id="liked-songs-list">
                 <!-- Liked Songs will be stored here -->
                 <li class="no-liked-songs">No songs liked yet</li>

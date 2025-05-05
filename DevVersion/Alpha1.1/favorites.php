@@ -108,7 +108,7 @@ $time_descriptions = [
         <div class="content-wrapper">
             <?php if (count($topItems->items) > 0): ?>
                 <?php foreach ($topItems->items as $index => $item): ?>
-                    <div class="card">
+                    <div class="card" data-index="<?php echo $index; ?>">
                         <img 
                             src="<?php echo isset($item->images[0]) ? htmlspecialchars($item->images[0]->url) : (isset($item->album->images[0]) ? htmlspecialchars($item->album->images[0]->url) : 'https://via.placeholder.com/100'); ?>" 
                             class="image" 
@@ -140,5 +140,6 @@ $time_descriptions = [
             <?php endif; ?>
         </div>
     </section>
+<script src="./assets/js/animations.js"></script>
 
 <?php include "./templates/footer.php" ?>
