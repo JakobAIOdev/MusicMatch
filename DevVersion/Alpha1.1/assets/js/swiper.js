@@ -244,12 +244,25 @@ function playCurrentTrack() {
         return;
     }
 
+    if (playbackTimer) {
+        clearTimeout(playbackTimer);
+        playbackTimer = null;
+    }
+    
+    if (progressUpdateTimer) {
+        clearInterval(progressUpdateTimer);
+        progressUpdateTimer = null;
+    }
+
     const track = tracks[currentTrackIndex];
     previewEnded = false;
 
-    const startPercentage = 0.3 + Math.random() * 0.1; // 30-40%
+    const startPercentage = 0.3 + Math.random() * 0.1;
     currentStartPosition = Math.floor(track.duration_ms * startPercentage);
 
+    console.log(`Playing track: ${track.name} (${track.uri}) from position ${currentStartPosition}ms`);
+
+    // Play the track
     fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
         method: "PUT",
         body: JSON.stringify({
@@ -261,43 +274,54 @@ function playCurrentTrack() {
             Authorization: `Bearer ${spotifyAccessToken}`,
         },
     })
-        .then((response) => {
-            if (response.status === 204) {
-                isPlaying = true;
-                updatePlayButton();
-                startProgressUpdates();
-
-                playbackTimer = setTimeout(() => {
-                    if (isPlaying) {
-                        player.pause().then(() => {
-                            isPlaying = false;
-                            previewEnded = true;
-                            updatePlayButton();
-                            document.getElementById(
-                                "progress-bar"
-                            ).style.width = "100%";
-                            document.getElementById(
-                                "current-time"
-                            ).textContent = "0:30";
-
-                            if (progressUpdateTimer) {
-                                clearInterval(progressUpdateTimer);
-                                progressUpdateTimer = null;
-                            }
-                        });
-                    }
-                }, previewDuration);
-            } else {
-                response.json().then((data) => {
-                    console.error("Error playing track:", data);
-                });
-            }
-        })
-        .catch((error) => {
-            console.error("Playback error:", error);
-            isPlaying = false;
+    .then((response) => {
+        if (response.status === 204) {
+            isPlaying = true;
             updatePlayButton();
-        });
+            startProgressUpdates();
+            
+            playbackTimer = setTimeout(() => {
+                stopPreview();
+            }, previewDuration + 2000);
+        } else {
+            return response.json().then((data) => {
+                throw new Error(`Error playing track: ${JSON.stringify(data)}`);
+            });
+        }
+    })
+    .catch((error) => {
+        console.error("Playback error:", error);
+        isPlaying = false;
+        updatePlayButton();
+    });
+}
+
+function stopPreview() {
+    if (!isPlaying) return;
+    
+    player.pause().then(() => {
+        isPlaying = false;
+        previewEnded = true;
+        updatePlayButton();
+        
+        const progressBar = document.getElementById("progress-bar");
+        if (progressBar) progressBar.style.width = "100%";
+        
+        const currentTime = document.getElementById("current-time");
+        if (currentTime) currentTime.textContent = "0:30";
+        
+        if (progressUpdateTimer) {
+            clearInterval(progressUpdateTimer);
+            progressUpdateTimer = null;
+        }
+        
+        if (playbackTimer) {
+            clearTimeout(playbackTimer);
+            playbackTimer = null;
+        }
+    }).catch(err => {
+        console.error("Error stopping playback:", err);
+    });
 }
 
 function updatePlayButton() {
@@ -373,38 +397,23 @@ window.onSpotifyWebPlaybackSDKReady = () => {
     });
 
     player.addListener("player_state_changed", (state) => {
-        if (state && !previewEnded) {
-            isPlaying = !state.paused;
-            updatePlayButton();
-
-            const elapsedInPreview = Math.min(
-                state.position - currentStartPosition,
-                previewDuration
-            );
-            const clampedElapsed = Math.max(0, elapsedInPreview);
-            const progress = (clampedElapsed / previewDuration) * 100;
-            document.getElementById(
-                "progress-bar"
-            ).style.width = `${progress}%`;
-            document.getElementById("current-time").textContent =
-                formatTime(clampedElapsed);
-
-            if (elapsedInPreview >= previewDuration && isPlaying) {
-                player.pause().then(() => {
-                    isPlaying = false;
-                    previewEnded = true;
-                    updatePlayButton();
-                    document.getElementById("progress-bar").style.width =
-                        "100%";
-                    document.getElementById("current-time").textContent =
-                        "0:30";
-
-                    if (playbackTimer) {
-                        clearTimeout(playbackTimer);
-                        playbackTimer = null;
-                    }
-                });
-            }
+        if (!state || previewEnded) return;
+        
+        isPlaying = !state.paused;
+        updatePlayButton();
+    
+        const elapsedInPreview = Math.min(
+            state.position - currentStartPosition,
+            previewDuration
+        );
+        
+        if (state.paused && state.position === 0) {
+            console.log("Track ended naturally by Spotify");
+            stopPreview();
+            return;
+        }
+        if (elapsedInPreview >= previewDuration && isPlaying) {
+            stopPreview();
         }
     });
 
@@ -428,7 +437,12 @@ function startProgressUpdates() {
     }
     progressUpdateTimer = setInterval(() => {
         player.getCurrentState().then((state) => {
-            if (state && isPlaying && !previewEnded) {
+            if (!state) {
+                console.log("No playback state available");
+                return;
+            }
+            
+            if (isPlaying && !previewEnded) {
                 const elapsedInPreview = Math.min(
                     state.position - currentStartPosition,
                     previewDuration
@@ -446,37 +460,16 @@ function startProgressUpdates() {
                 if (currentTime) {
                     currentTime.textContent = formatTime(clampedElapsed);
                 }
+                
+                // Stop at 30 seconds
                 if (elapsedInPreview >= previewDuration) {
-                    player.pause().then(() => {
-                        isPlaying = false;
-                        previewEnded = true;
-                        updatePlayButton();
-
-                        const progressBarEnd =
-                            document.getElementById("progress-bar");
-                        const currentTimeEnd =
-                            document.getElementById("current-time");
-
-                        if (progressBarEnd) {
-                            progressBarEnd.style.width = "100%";
-                        }
-
-                        if (currentTimeEnd) {
-                            currentTimeEnd.textContent = "0:30";
-                        }
-
-                        clearInterval(progressUpdateTimer);
-                        progressUpdateTimer = null;
-
-                        if (playbackTimer) {
-                            clearTimeout(playbackTimer);
-                            playbackTimer = null;
-                        }
-                    });
+                    stopPreview();
                 }
             }
+        }).catch(err => {
+            console.error("Error getting player state:", err);
         });
-    }, 100); // update every 100ms
+    }, 100);
 }
 
 const swipeMethod = document.getElementById("swipe-method");

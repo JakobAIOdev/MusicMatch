@@ -90,19 +90,16 @@ section {
 
 .spotify-button {
     padding: 10px 16px;
-    border-radius: 50px;
     font-size: 0.9rem;
     width: fit-content;
 }
 
-/* Time range indicator styling */
 p strong {
     color: #228bd6;
     font-weight: 600;
     font-size: 1.05rem;
 }
 
-/* Responsive improvements */
 @media (max-width: 768px) {
     .nav-wrapper {
         flex-direction: column;

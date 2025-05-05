@@ -12,8 +12,11 @@ function showPremiumNotice($featureName = "Feature") {
                 <p class="premium-notice-subtext">Upgrade to Premium, to gain access to this feature.</p>
             </div>
             <div class="premium-notice-actions">
-                <a href="https://open.spotify.com/premium" class="btn btn-accent">Upgrade to Premium</a>
-                <a href="/index.php" class="btn btn-primary">Close</a>
+                <a href="https://open.spotify.com/premium" class="spotify-button">
+                    <img class="spotify-icon" src="./assets/img/icons/spotify-primary-white.svg" alt="Spotify">
+                    <span>Upgrade to Premium</span>
+                </a>
+                <a href="/index.php" class="btn btn-primary" id="close-btn">Close</a>
             </div>
         </div>
     </div>
@@ -42,14 +45,13 @@ function showPremiumNotice($featureName = "Feature") {
             text-align: center;
             position: relative;
         }
+
+        #close-btn:hover{
+            color: var(--gray);
+        }
         
         .premium-notice-icon {
             margin-bottom: 15px;
-        }
-        
-        .premium-notice-icon i {
-            font-size: 48px;
-            color: #FFD700;
         }
         
         .premium-notice-text h3 {
