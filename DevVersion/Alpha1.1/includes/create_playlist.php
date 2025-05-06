@@ -1,7 +1,7 @@
 <?php
-require_once './includes/session_handler.php';
-require_once './vendor/autoload.php';
-require_once './includes/spotify_utils.php';
+require_once './session_handler.php';
+require_once '../vendor/autoload.php';
+require_once './spotify_utils.php';
 
 ini_set('display_errors', 0);
 header('Content-Type: application/json');

@@ -41,7 +41,7 @@
                     ?>
                         <div class="user-profile">
                             <?php
-                            $profileImage = '../assets/img/default-profile.png';
+                            $profileImage = '../assets/img/default-avatar.png';
                             
                             if (isset($_SESSION['userData']['images'][0]->url)) {
                                 $profileImage = htmlspecialchars($_SESSION['userData']['images'][0]->url);
@@ -53,11 +53,11 @@
                             <img src="<?php echo $profileImage; ?>" alt="Profile Picture">
                             <span><?php echo "<a href='../profile.php'>$displayName</a>"; ?></span>
                         </div>
-                        <a href="javascript:void(0);" onclick="performLogout();" class="btn btn-outline">Logout</a>
+                        <a href="javascript:void(0);" onclick="performLogout();" class="btn btn-outline header-auth-btn">Logout</a>
                     <?php else: 
                         error_log('No user data in session');
                     ?>
-                        <a href="../auth/login.php" class="btn btn-outline">Login</a>
+                        <a href="../auth/login.php" class="btn btn-outline header-auth-btn">Login</a>
                     <?php endif; ?>
                 </div>
             </nav>

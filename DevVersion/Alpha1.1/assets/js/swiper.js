@@ -10,6 +10,7 @@ let likedSongs = [];
 let currentCard = null;
 let isAnimating = false;
 let progressUpdateTimer = null;
+let isCreatingPlaylist = false; 
 
 //console.log(spotifyAccessToken, tracks);
 
@@ -810,7 +811,7 @@ document.addEventListener("DOMContentLoaded", function () {
             confirmAddBtn.innerHTML =
                 '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...';
 
-            fetch("./create_playlist.php", {
+            fetch("./includes/create_playlist.php", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -868,7 +869,7 @@ document.addEventListener("DOMContentLoaded", function () {
             confirmCreateBtn.innerHTML =
                 '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...';
 
-            fetch("./create_playlist.php", {
+            fetch("./includes/create_playlist.php", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -1031,7 +1032,6 @@ function setupConfirmationDialogs() {
     document.getElementById("cancel-add-btn")?.addEventListener("click", hideAllConfirmations);
     
     document.getElementById("confirm-reset-btn")?.addEventListener("click", resetTracksAndLikes);
-    document.getElementById("confirm-create-btn")?.addEventListener("click", createPlaylist);
     document.getElementById("confirm-add-btn")?.addEventListener("click", addToPlaylist);
 }
 
@@ -1068,6 +1068,11 @@ function loadUserPlaylists() {
 }
 
 function createPlaylist() {
+    if (isCreatingPlaylist) {
+        console.log("Already creating playlist, request ignored");
+        return;
+    }
+    
     const playlistName = document.getElementById("playlist-name").value;
     if (!playlistName.trim()) {
         showNotification("Please enter a playlist name", 'error');
@@ -1075,11 +1080,18 @@ function createPlaylist() {
     }
 
     const clearLikes = document.getElementById("clear-liked-songs").checked;
+    const confirmCreateBtn = document.getElementById("confirm-create-btn");
     
-    document.getElementById("confirm-create-btn").disabled = true;
-    document.getElementById("confirm-create-btn").innerHTML = 'Creating...';
+    if (confirmCreateBtn.disabled) {
+        return;
+    }
+    isCreatingPlaylist = true;
+    resetCreatePlaylistFlag();
     
-    fetch("./create_playlist.php", {
+    confirmCreateBtn.disabled = true;
+    confirmCreateBtn.innerHTML = 'Creating...';
+    
+    fetch("./includes/create_playlist.php", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -1092,7 +1104,10 @@ function createPlaylist() {
     })
     .then(response => response.json())
     .then(data => {
+        isCreatingPlaylist = false;
+        
         if (data.success) {
+            showNotification(`Playlist "${playlistName}" created successfully!`, 'success');
             
             if (data.cleared_likes) {
                 likedSongs = [];
@@ -1101,19 +1116,39 @@ function createPlaylist() {
             }
             
             hideAllConfirmations();
+            setTimeout(() => {
+                confirmCreateBtn.disabled = false;
+                confirmCreateBtn.innerHTML = "Create Playlist";
+            }, 2000);
         } else {
             showNotification("Failed to create playlist: " + data.message, 'error');
+            confirmCreateBtn.disabled = false;
+            confirmCreateBtn.innerHTML = "Create Playlist";
         }
-        
-        document.getElementById("confirm-create-btn").disabled = false;
-        document.getElementById("confirm-create-btn").innerHTML = "Create Playlist";
     })
     .catch(error => {
+        isCreatingPlaylist = false;
+        
         console.error("Error creating playlist:", error);
         showNotification("Failed to create playlist: " + error.message, 'error');
-        document.getElementById("confirm-create-btn").disabled = false;
-        document.getElementById("confirm-create-btn").innerHTML = "Create Playlist";
+        confirmCreateBtn.disabled = false;
+        confirmCreateBtn.innerHTML = "Create Playlist";
     });
+}
+
+function resetCreatePlaylistFlag() {
+    setTimeout(() => {
+        if (isCreatingPlaylist) {
+            isCreatingPlaylist = false;
+            console.log("Reset createPlaylist flag after timeout");
+            
+            const confirmCreateBtn = document.getElementById("confirm-create-btn");
+            if (confirmCreateBtn && confirmCreateBtn.disabled) {
+                confirmCreateBtn.disabled = false;
+                confirmCreateBtn.innerHTML = "Create Playlist";
+            }
+        }
+    }, 10000);
 }
 
 function addToPlaylist() {
@@ -1131,7 +1166,7 @@ function addToPlaylist() {
     document.getElementById("confirm-add-btn").disabled = true;
     document.getElementById("confirm-add-btn").innerHTML = 'Adding...';
     
-    fetch("./create_playlist.php", {
+    fetch("./includes/create_playlist.php", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

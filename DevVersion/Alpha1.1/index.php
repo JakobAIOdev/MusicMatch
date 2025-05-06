@@ -15,7 +15,7 @@ require_once './includes/spotify_utils.php';
         <div class="hero-content">
             <h1 class="hero-title">Best <span>MusicSwiper</span> for <br> Tailored Listening Experiences</h1>
             <p class="hero-subtitle">Discover new tracks, create personalized playlists,<br>
-            and enjoy seamless Spotify integration all in one place.</p>
+                and enjoy seamless Spotify integration all in one place.</p>
             <div class="hero-buttons">
                 <?php /* if (!isset($_SESSION['spotify_access_token'])): ?>
                     <a href="auth/login.php" class="btn btn-accent">Login with Spotify</a>
@@ -106,9 +106,15 @@ require_once './includes/spotify_utils.php';
         <p class="cta-description">Join thousands of music lovers discovering new tracks every day with MusicMatch.</p>
         <div class="cta-buttons">
             <?php if (!isset($_SESSION['spotify_access_token'])): ?>
-                <a href="auth/login.php" class="btn btn-accent">Login with Spotify</a>
+                <a href="/auth/login.php" class="btn spotify-button">
+                    <img class="spotify-icon" src="./assets/img/icons/spotify-primary-white.svg" alt="Spotify Logo">
+                    <span>Login with Spotify</span>
+                </a>
             <?php else: ?>
-                <a href="swiper.php" class="btn btn-secondary">Go to Swiper</a>
+                <a href="swiper.php" class="btn btn-primary">
+                    <img src="./assets/img/icons/swipe.svg" alt="Swipe Icon" class="spotify-icon">
+                    <span>Go to Swiper</span>
+                </a>
             <?php endif; ?>
         </div>
     </div>
