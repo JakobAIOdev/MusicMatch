@@ -1,5 +1,5 @@
 <?php
-require_once './includes/session_handler.php';
+require_once './session_handler.php';
 
 header('Content-Type: application/json');
 

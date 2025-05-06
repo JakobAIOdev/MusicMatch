@@ -63,7 +63,7 @@ if (swipeForm) {
         if (likedSongs && likedSongs.length > 0) {
             localStorage.setItem("musicmatch_liked_songs", JSON.stringify(likedSongs));
             
-            fetch("./save_liked_track.php", {
+            fetch("./includes/save_liked_track.php", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -597,7 +597,7 @@ function saveLikedSongs(songs) {
     }
 
     // Save to session via AJAX
-    return fetch("./save_liked_track.php", {
+    return fetch("./includes/save_liked_track.php", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -737,7 +737,7 @@ document.addEventListener("DOMContentLoaded", function () {
             playlistSelect.innerHTML = '<option value="" disabled selected>Loading playlists...</option>';
             confirmAddBtn.disabled = true;
 
-            fetch("./get_playlists.php")
+            fetch("./includes/get_playlists.php")
                 .then((response) => {
                     if (!response.ok) {
                         throw new Error(
@@ -1039,7 +1039,7 @@ function loadUserPlaylists() {
     const playlistSelect = document.getElementById("existing-playlist-select");
     playlistSelect.innerHTML = '<option value="" disabled selected>Loading playlists...</option>';
     
-    fetch("./get_playlists.php")
+    fetch("./includes/get_playlists.php")
         .then(response => response.json())
         .then(data => {
             if (data.success && data.playlists && data.playlists.length > 0) {
