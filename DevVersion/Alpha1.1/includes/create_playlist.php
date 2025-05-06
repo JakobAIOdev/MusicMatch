@@ -51,6 +51,16 @@ try {
         
         $result = $api->addPlaylistTracks($playlist->id, $data['tracks']);
         $skippedTracks = 0;
+
+        try {
+            $imagePath = '../assets/img/MusicMatchCover.jpg';
+            if (file_exists($imagePath)) {
+                $imageData = base64_encode(file_get_contents($imagePath));
+                $api->updatePlaylistImage($playlist->id, $imageData);
+            }
+        } catch (Exception $imageEx) {
+            error_log("Failed to add image to playlist: " . $imageEx->getMessage());
+        }
     }
     if (isset($data['clear_liked_songs']) && $data['clear_liked_songs']) {
         $_SESSION['liked_tracks'] = [];
