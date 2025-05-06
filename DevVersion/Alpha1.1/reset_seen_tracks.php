@@ -1,36 +1,36 @@
 <?php
 require_once './includes/session_handler.php';
 
-$queryString = $_SERVER['QUERY_STRING'] ?? '';
-parse_str($queryString, $params);
-
-$swipeMethod = isset($params['swipe-method']) ? $params['swipe-method'] : '';
-$playlistLink = isset($params['playlist-link']) ? $params['playlist-link'] : '';
-
-if ($swipeMethod === 'playlist' && !empty($playlistLink)) {
-    $playlistId = null;
-    if (preg_match('/playlist\/([a-zA-Z0-9]+)/', $playlistLink, $matches)) {
-        $playlistId = $matches[1];
-    }
-    if ($playlistId) {
-        $_SESSION['seen_track_ids_playlist_' . $playlistId] = [];
-    }
-} elseif (in_array($swipeMethod, ['short_term', 'medium_term', 'long_term'])) {
-    $_SESSION['seen_track_ids_favorites_' . $swipeMethod] = [];
-} elseif ($swipeMethod === 'random') {
-    $_SESSION['seen_track_ids_random'] = [];
-} else {
-    foreach ($_SESSION as $key => $value) {
-        if (strpos($key, 'seen_track_ids_') === 0) {
-            $_SESSION[$key] = [];
-        }
-    }
-}
-
+// Clear liked tracks from session
 if (isset($_SESSION['liked_tracks'])) {
-    $_SESSION['liked_tracks'] = [];
+    unset($_SESSION['liked_tracks']);
 }
 
-header('Location: swiper.php' . (!empty($queryString) ? '?' . $queryString : ''));
-exit;
+// Clear all seen track IDs from session
+if (isset($_SESSION['seen_tracks_random'])) {
+    unset($_SESSION['seen_tracks_random']);
+}
+if (isset($_SESSION['seen_tracks_short_term'])) {
+    unset($_SESSION['seen_tracks_short_term']);
+}
+if (isset($_SESSION['seen_tracks_medium_term'])) {
+    unset($_SESSION['seen_tracks_medium_term']);
+}
+if (isset($_SESSION['seen_tracks_long_term'])) {
+    unset($_SESSION['seen_tracks_long_term']);
+}
+
 ?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Resetting...</title>
+    <script>
+        localStorage.removeItem('musicmatch_liked_songs');
+        window.location.href = 'swiper.php<?php echo !empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : ''; ?>';
+    </script>
+</head>
+<body>
+    <p>Resetting tracks... Please wait.</p>
+</body>
+</html>

@@ -111,6 +111,28 @@
     border-radius: var(--border-radius);
 }
 
+#lasFm-input-group {
+    display: none;
+    align-items: center;
+    flex-grow: 1;
+    width: 1px;
+    height: 38px;
+}
+
+#lasFm-input-group.visible {
+    display: inline-flex;
+    width: auto;
+}
+
+.lastfm-mode #lasFm-input-group {
+    width: auto;
+}
+
+.lastfm-mode #swipe-method {
+    width: 120px;
+    flex-shrink: 0;
+}
+
 @media (max-width: 768px) {
     .input-group {
         flex-direction: column;
@@ -755,4 +777,75 @@ input[type="range"]::-webkit-slider-thumb {
 
 .button-hidden {
     display: none !important;
+}
+/* Make both input groups consistent in styling */
+#playlist-input-group,
+#lasFm-input-group {
+    display: none;
+    align-items: center;
+    flex-grow: 1;
+    width: 1px;
+    height: 38px;
+}
+
+#playlist-input-group.visible,
+#lasFm-input-group.visible {
+    display: flex;
+    width: auto;
+}
+
+/* Apply the same styles to both inputs */
+#playlist-input-group input,
+#lasFm-input-group input {
+    height: 38px;
+    padding: 0 10px;
+    border: 1px solid #E2E5E8;
+    border-radius: 4px;
+    flex-grow: 1;
+    min-width: 250px;
+    font-size: 14px;
+    margin-right: 8px;
+    outline: none;
+}
+
+/* Consistent button styling */
+#playlist-input-group button,
+#lasFm-input-group button {
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Focus states */
+#playlist-input-group input:focus,
+#lasFm-input-group input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.2);
+}
+
+/* Mode specific styling */
+.playlist-mode #swipe-method,
+.lastfm-mode #swipe-method {
+    width: 120px;
+    flex-shrink: 0;
+    border-radius: 4px 0 0 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #playlist-input-group,
+    #lasFm-input-group {
+        flex-direction: column;
+        height: auto;
+        align-items: stretch;
+        width: 100%;
+    }
+    
+    #playlist-input-group input,
+    #lasFm-input-group input {
+        margin-right: 0;
+        margin-bottom: 8px;
+    }
 }

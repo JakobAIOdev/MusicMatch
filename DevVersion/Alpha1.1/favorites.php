@@ -39,15 +39,12 @@ if (!in_array($view_type, $valid_views)) {
 
 try {
     $topItems = $api->getMyTop($view_type, [
-        'limit' => 10,
+        'limit' => 50,
         'time_range' => $time_range
     ]);
-    
-    // Save top items in a structured array
     $savedItems = [];
     foreach ($topItems->items as $item) {
         if ($view_type == 'tracks') {
-            // For tracks, save song name and artist name
             $artistNames = array_map(function($artist) {
                 return $artist->name;
             }, $item->artists);
@@ -60,7 +57,6 @@ try {
                 'spotify_url' => $item->external_urls->spotify
             ];
         } else {
-            // For artists, save artist name
             $savedItems[] = [
                 'name' => $item->name,
                 'type' => 'artist',
@@ -69,12 +65,7 @@ try {
             ];
         }
     }
-    
-    // Store in session for potential later use
     $_SESSION['saved_' . $view_type] = $savedItems;
-    
-    // Debug - Uncomment to test
-    //echo '<pre>'; print_r($savedItems); echo '</pre>';
     
 } catch (Exception $e) {
     die('Error fetching top ' . $view_type . ': ' . $e->getMessage());

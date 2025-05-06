@@ -52,16 +52,15 @@ section {
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1); /* Smoother easing */
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1); 
     background: white;
     border: 1px solid #f0f0f0;
 }
 
-/* Replace this existing hover rule */
 .card:hover {
-    transform: translateY(-3px); /* More subtle lift */
+    transform: translateY(-3px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    border-color: rgba(34, 139, 214, 0.3); /* Subtle border highlight */
+    border-color: rgba(34, 139, 214, 0.3);
 }
 
 .image {
@@ -167,19 +166,19 @@ p strong {
     100% { transform: translateX(100%); }
 }
 
-
 .content-wrapper .card {
     opacity: 1; 
     transform: none;
-    transition: opacity 0.5s ease, 
-                transform 0.5s ease,
-                box-shadow 0.3s ease, 
-                border-color 0.3s ease;
+    transition: opacity 0.25s ease-out, 
+                transform 0.25s ease-out,
+                box-shadow 0.2s ease, 
+                border-color 0.2s ease;
+    will-change: transform, opacity;
 }
 
 .js-enabled .content-wrapper .card {
     opacity: 0;
-    transform: translateY(15px);
+    transform: translateY(8px);
 }
 
 .js-enabled .content-wrapper .card.visible {
@@ -187,16 +186,19 @@ p strong {
     transform: translateY(0);
 }
 
-/* Staggered card animations - more controlled timing */
-.js-enabled .content-wrapper .card[data-index="0"].visible { transition-delay: 0.05s; }
-.js-enabled .content-wrapper .card[data-index="1"].visible { transition-delay: 0.10s; }
-.js-enabled .content-wrapper .card[data-index="2"].visible { transition-delay: 0.15s; }
-.js-enabled .content-wrapper .card[data-index="3"].visible { transition-delay: 0.20s; }
-.js-enabled .content-wrapper .card[data-index="4"].visible { transition-delay: 0.25s; }
-.js-enabled .content-wrapper .card[data-index="5"].visible { transition-delay: 0.30s; }
+.js-enabled .content-wrapper .card[data-index="0"].visible { transition-delay: 0.02s; }
+.js-enabled .content-wrapper .card[data-index="1"].visible { transition-delay: 0.04s; }
+.js-enabled .content-wrapper .card[data-index="2"].visible { transition-delay: 0.06s; }
+.js-enabled .content-wrapper .card[data-index="3"].visible { transition-delay: 0.08s; }
+.js-enabled .content-wrapper .card[data-index="4"].visible { transition-delay: 0.10s; }
+.js-enabled .content-wrapper .card[data-index="5"].visible { transition-delay: 0.12s; }
 
 .card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
     border-color: rgba(34, 139, 214, 0.2);
+}
+
+.js-enabled .content-wrapper .card.visible:hover {
+    transform: translateY(-3px);
 }
