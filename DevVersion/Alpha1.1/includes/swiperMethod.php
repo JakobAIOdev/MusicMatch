@@ -4,24 +4,26 @@ require_once './vendor/autoload.php';
 require_once './includes/spotify_utils.php';
 
 function filterSeenTracks($tracks, $mode) {
+    if (!isset($_SESSION['global_seen_track_ids'])) {
+        $_SESSION['global_seen_track_ids'] = [];
+    }
     $sessionKey = 'seen_track_ids_' . $mode;
-    
     if (!isset($_SESSION[$sessionKey])) {
         $_SESSION[$sessionKey] = [];
     }
-    
     $filteredTracks = [];
     
     foreach ($tracks as $track) {
-        if (!in_array($track['id'], $_SESSION[$sessionKey])) {
+        if (!in_array($track['id'], $_SESSION['global_seen_track_ids'])) {
             $filteredTracks[] = $track;
             $_SESSION[$sessionKey][] = $track['id'];
+            $_SESSION['global_seen_track_ids'][] = $track['id'];
         }
     }
     
     if (empty($filteredTracks) && !empty($tracks)) {
-        $_SESSION['notice'] = "You've already seen all tracks from this category. Showing them again.";
-        shuffle($tracks);
+        $_SESSION['notice'] = "You've seen all tracks from this category. Showing them again.";
+        $_SESSION[$sessionKey] = [];
         return $tracks;
     }
     
@@ -64,7 +66,6 @@ function playlistTracks($api, $playlistLink){
         ];        
     }
     
-    // Pass 'playlist_' followed by the playlist ID as the mode identifier
     $trackData = filterSeenTracks($trackData, 'playlist_' . $playlistId);
     shuffle($trackData);
     return $tracksJson = json_encode($trackData);

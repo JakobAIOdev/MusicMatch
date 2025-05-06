@@ -6,21 +6,17 @@ try {
     if (isset($_SESSION['liked_tracks'])) {
         unset($_SESSION['liked_tracks']);
     }
-    $trackTypeKeys = ['random', 'short_term', 'medium_term', 'long_term'];
-    foreach ($trackTypeKeys as $key) {
-        $sessionKey = 'seen_tracks_' . $key;
-        if (isset($_SESSION[$sessionKey])) {
-            unset($_SESSION[$sessionKey]);
-        }
-    }
+
+    $_SESSION['global_seen_track_ids'] = [];
     
     foreach ($_SESSION as $key => $value) {
-        if (strpos($key, 'track') !== false || strpos($key, 'song') !== false) {
-            unset($_SESSION[$key]);
+        if (strpos($key, 'seen_tracks_') === 0 || 
+            strpos($key, 'seen_track_ids_') === 0) {
+            $_SESSION[$key] = [];
         }
     }
-    session_write_close();
     
+    session_write_close();
     echo json_encode([
         'success' => true, 
         'message' => 'Tracks reset successfully',
