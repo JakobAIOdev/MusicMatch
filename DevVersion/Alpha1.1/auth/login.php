@@ -38,6 +38,7 @@ $options = [
         'ugc-image-upload'
     ],
     'state' => $state,
+    'show_dialog' => true
 ];
 
 $session = new SpotifyWebAPI\Session(
