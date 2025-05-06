@@ -164,7 +164,7 @@ try {
         <div id="reset-confirmation" style="display: none;" class="confirmation-panel">
             <p class="text-danger">Are you sure you want to reset all seen tracks? This cannot be undone.</p>
             <div class="confirmation-buttons">
-                <a href="reset_seen_tracks.php<?php echo !empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : ''; ?>" class="btn btn-sm btn-danger">Reset</a>
+                <button type="button" class="btn btn-sm btn-danger" id="confirm-reset-btn">Reset</button>
                 <button type="button" class="btn btn-sm btn-secondary" id="cancel-reset-btn">Cancel</button>
             </div>
         </div>

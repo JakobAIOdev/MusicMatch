@@ -53,7 +53,7 @@
                             <img src="<?php echo $profileImage; ?>" alt="Profile Picture">
                             <span><?php echo "<a href='../profile.php'>$displayName</a>"; ?></span>
                         </div>
-                        <a href="../auth/logout.php" class="btn btn-outline">Logout</a>
+                        <a href="javascript:void(0);" onclick="performLogout();" class="btn btn-outline">Logout</a>
                     <?php else: 
                         error_log('No user data in session');
                     ?>

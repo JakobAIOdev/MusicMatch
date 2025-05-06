@@ -299,3 +299,91 @@ a:hover {
 .spotify-button:hover .spotify-icon {
     filter: brightness(0);
 }
+
+
+
+.mm-notification {
+    position: fixed;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    z-index: 9999;
+    min-width: 300px;
+    max-width: 80%;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.mm-notification-visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.mm-notification-hiding {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+}
+
+.mm-notification-success {
+    border-left: 4px solid var(--primary);
+}
+
+.mm-notification-error {
+    border-left: 4px solid #dc3545;
+}
+
+.mm-notification-info {
+    border-left: 4px solid #ffd129;
+}
+
+.mm-notification-icon {
+    margin-right: 15px;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mm-notification-icon img {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+}
+
+.mm-notification-success .mm-notification-icon img {
+    color: var(--primary);
+}
+
+.mm-notification-error .mm-notification-icon img {
+    color: #dc3545;
+}
+
+.mm-notification-info .mm-notification-icon img {
+    color: #ffd129;
+}
+
+.mm-notification-message {
+    flex-grow: 1;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+}
+
+.mm-notification-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #777;
+    padding: 0 5px;
+}
+
+.mm-notification-close:hover {
+    color: #333;
+}
