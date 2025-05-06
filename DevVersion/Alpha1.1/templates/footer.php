@@ -39,9 +39,9 @@
     </div>
 </footer>
 
-<script src="../assets/js/notifications.js"></script>
-<script src="../assets/js/logout.js"></script>
-<script src="../assets/js/burger-menu.js"></script>
+<script src="./assets/js/notifications.js"></script>
+<script src="./assets/js/logout.js"></script>
+<script src="./assets/js/burger-menu.js"></script>
 <script src="./assets/js/login-cleanup.js"></script>
 <?php if (isset($additionalScripts)) echo $additionalScripts; ?>
 </body>

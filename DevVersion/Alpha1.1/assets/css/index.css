@@ -16,13 +16,13 @@ body {
 .hero-content, .hero-title, .hero-subtitle, .hero-buttons {
     opacity: 0;
     transform: translateY(20px);
-    transition: opacity 1s ease, transform 1s ease;
     margin: 0 auto;
 }
 
 .hero-content {
     padding-top: 13rem;
-    animation: fadeInUp 1s ease-out forwards;
+    opacity: 0;
+    animation: fadeInUp-hero 1s ease-out forwards !important;
 }
 
 .hero-title {
@@ -32,7 +32,8 @@ body {
     line-height: 1.2;
     color: rgb(34, 40, 47);
     text-align: center;
-    animation: fadeInUp 1s ease-out forwards;
+    opacity: 0;
+    animation: fadeInUp-hero 1s ease-out forwards !important;
     animation-delay: 0.2s;
 }
 
@@ -46,9 +47,9 @@ body {
     font-size: 1.2rem;
     line-height: 1.4rem;
     margin-bottom: 2rem;
-    opacity: 0.9;
     color: var(--text-light);
-    animation: fadeInUp 1s ease-out forwards;
+    opacity: 0;
+    animation: fadeInUp-hero 1s ease-out forwards !important;
     animation-delay: 0.4s;
 }
 
@@ -57,7 +58,8 @@ body {
     align-items: center;
     justify-content: center;
     padding-top: 3rem;
-    animation: fadeInUp 1s ease-out forwards;
+    opacity: 0;
+    animation: fadeInUp-hero 1s ease-out forwards !important;
     animation-delay: 0.6s;
 }
 
@@ -69,7 +71,7 @@ body {
 }
 
 /* Fade in animation */
-@keyframes fadeInUp {
+@keyframes fadeInUp-hero {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }

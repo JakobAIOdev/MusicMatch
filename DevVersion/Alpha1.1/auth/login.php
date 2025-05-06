@@ -34,7 +34,8 @@ $options = [
         'playlist-read-collaborative',
         'playlist-modify-private',
         'playlist-modify-public',
-        'user-read-recently-played'
+        'user-read-recently-played',
+        'ugc-image-upload'
     ],
     'state' => $state,
 ];

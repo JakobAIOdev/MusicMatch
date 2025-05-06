@@ -1,12 +1,12 @@
 function initAnimations() {
     document.body.classList.add('js-enabled');
-    const heroSection = document.querySelector('.hero-section');
-    if (heroSection) {
-        heroSection.classList.add('visible');
-    }
     
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
+            if (entry.target.closest('.hero-section')) {
+                return;
+            }
+            
             if (entry.isIntersecting) {
                 entry.target.classList.add('visible');
                 
@@ -30,20 +30,19 @@ function initAnimations() {
             }
         });
     }, {
-        threshold: 0.15, // Trigger when element is 15% visible
-        rootMargin: '0px 0px -50px 0px' // Slight negative margin to trigger earlier
+        threshold: 0.15,
+        rootMargin: '0px 0px -10px 0px'
     });
     
     document.querySelectorAll('.content-wrapper .card').forEach((card, index) => {
         card.dataset.index = index % 6;
         observer.observe(card);
     });
-    
-    document.querySelectorAll('.section, .nav-wrapper, section > p, section > h1').forEach(element => {
+    document.querySelectorAll('.section:not(.hero-section), .nav-wrapper, section > p, section > h1').forEach(element => {
         observer.observe(element);
     });
     
-    console.log('Animations initialized with re-trigger capability');
+    console.log('Animations initialized with hero section exclusion');
 }
 
 document.addEventListener('DOMContentLoaded', initAnimations);

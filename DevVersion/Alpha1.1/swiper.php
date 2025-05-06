@@ -171,7 +171,7 @@ try {
 
         <div id="create-playlist-confirmation" style="display: none;" class="confirmation-panel">
             <div class="form-group mb-2">
-                <input type="text" id="playlist-name" class="form-control" placeholder="Playlist name" value="My MusicMatch Swiper Playlist">
+                <input type="text" id="playlist-name" class="form-control" placeholder="Playlist name" value="My MusicMatch Playlist">
             </div>
             <div class="form-check mb-2">
                 <input type="checkbox" id="clear-liked-songs" class="form-check-input">
