@@ -108,6 +108,8 @@ try {
                                                 }
                                                 ?>">
                             <select id="swipe-method" name="swipe-method">
+                                <option value="billboard_hot_100" <?php echo ($swipeMethod === 'billboard_hot_100') ? 'selected' : ''; ?>>Billboard Hot 100</option>
+                                <option value="100_most_streamed" <?php echo ($swipeMethod === '100_most_streamed') ? 'selected' : ''; ?>>100 Most Streamed Songs on Spotify</option>
                                 <option value="lastFM" <?php echo ($swipeMethod === 'lastFM') ? 'selected' : ''; ?>>LastFM</option>
                                 <option value="playlist" <?php echo ($swipeMethod === 'playlist') ? 'selected' : ''; ?>>Playlist</option>
                                 <option value="random" <?php echo ($swipeMethod === 'random') ? 'selected' : ''; ?>>Random</option>
@@ -234,11 +236,14 @@ try {
         }
     } elseif ($swipeMethod === 'short_term' || $swipeMethod === 'medium_term' || $swipeMethod === 'long_term') {
         $tracksJson = favoritesTracks($api, $swipeMethod);
-    } else {
+    } elseif ($swipeMethod === 'billboard_hot_100'){
+        $tracksJson = billboardHot100($api);
+    }elseif ($swipeMethod === '100_most_streamed'){
+        $tracksJson = mostStreamed100($api);
+    }else {
         die('Invalid swipe method');
     }
     ?>
-
     const spotifyAccessToken = '<?php echo $_SESSION['spotify_access_token']; ?>';
     const tracks = <?php echo $tracksJson; ?>;
     const initialLikedSongs = <?php echo isset($_SESSION['liked_tracks']) ? json_encode($_SESSION['liked_tracks']) : '[]'; ?>;

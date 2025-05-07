@@ -43,32 +43,11 @@ function playlistTracks($api, $playlistLink){
         die('Invalid playlist link');
     }
     
-    $playlistTracks = $api->getPlaylistTracks($playlistId);
-    if (isset($playlistTracks->error)) {
-        die('Error fetching playlist tracks: ' . $playlistTracks->error->message);
-    }
-    
-    $trackData = [];
-    foreach ($playlistTracks->items as $track) {
-        $track = $track->track;
-        
-        $trackData[] = [
-            'uri' => $track->uri,
-            'id' => $track->id,
-            'name' => $track->name,
-            'artist' => implode(', ', array_map(function ($artist) {
-                return $artist->name;
-            }, $track->artists)),
-            'album' => $track->album->name,
-            'image' => $track->album->images[0]->url ?? 'img/default-album.png',
-            'duration_ms' => $track->duration_ms,
-            'spotify_url' => $track->external_urls->spotify ?? '#'
-        ];        
-    }
+    $trackData = getPlaylistSongs($api, $playlistId);
     
     $trackData = filterSeenTracks($trackData, 'playlist_' . $playlistId);
     shuffle($trackData);
-    return $tracksJson = json_encode($trackData);
+    return json_encode($trackData);
 }
 
 function favoritesTracks($api, $time_range){
@@ -96,4 +75,46 @@ function favoritesTracks($api, $time_range){
     $filteredTracks = filterSeenTracks($trackData, 'favorites_' . $time_range);
     shuffle($filteredTracks);
     return json_encode($filteredTracks);
+}
+
+function billboardHot100($api){
+    $playlistId = '6UeSakyzhiEt4NB3UAd6NQ';
+    $trackData =  getPlaylistSongs($api, $playlistId);
+    $trackData = filterSeenTracks($trackData, 'playlist_' . $playlistId);
+    shuffle($trackData);
+    return json_encode($trackData);
+}
+
+function mostStreamed100($api){
+    $playlistId = '5ABHKGoOzxkaa28ttQV9sE';
+    $trackData =  getPlaylistSongs($api, $playlistId);
+    $trackData = filterSeenTracks($trackData, 'playlist_' . $playlistId);
+    shuffle($trackData);
+    return json_encode($trackData);
+}
+
+function getPlaylistSongs($api, $playlistId){
+    $playlistTracks = $api->getPlaylistTracks($playlistId);
+    if (isset($playlistTracks->error)) {
+        die('Error fetching playlist tracks: ' . $playlistTracks->error->message);
+    }
+    
+    $trackData = [];
+    foreach ($playlistTracks->items as $track) {
+        $track = $track->track;
+        
+        $trackData[] = [
+            'uri' => $track->uri,
+            'id' => $track->id,
+            'name' => $track->name,
+            'artist' => implode(', ', array_map(function ($artist) {
+                return $artist->name;
+            }, $track->artists)),
+            'album' => $track->album->name,
+            'image' => $track->album->images[0]->url ?? 'img/default-album.png',
+            'duration_ms' => $track->duration_ms,
+            'spotify_url' => $track->external_urls->spotify ?? '#'
+        ];        
+    }
+    return $trackData;
 }
