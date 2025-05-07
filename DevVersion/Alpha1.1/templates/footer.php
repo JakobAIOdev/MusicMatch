@@ -18,7 +18,6 @@
                     <li><a href="./features.php">Features</a></li>
                     <li><a href="./favorites.php">Favorites</a></li>
                     <li><a href="./swiper.php">Music Swiper</a></li>
-                    <li><a href="./about.php">About Us</a></li>
                 </ul>
             </div>
         </div>

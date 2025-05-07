@@ -4,42 +4,52 @@ require_once './vendor/autoload.php';
 require_once './includes/spotify_utils.php';
 
 function getRecommendedTracksLastFM($api, $username) {
-    include './includes/config.php';
-    $lastFmUrl = "http://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user={$username}&api_key={$LastFmApiKey}&format=json&limit=50";
+    $lastFmUrl = "https://www.last.fm/player/station/user/{$username}/recommended?page=1&ajax=1";
     
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $lastFmUrl);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; MusicMatch/1.0)');
+    
     $response = curl_exec($ch);
-    curl_close($ch);
     
-    $lastFmData = json_decode($response, true);
-    
-    if (!isset($lastFmData['toptracks']) || !isset($lastFmData['toptracks']['track'])) {
-        return json_encode([]);
+    if (curl_errno($ch)) {
+        curl_close($ch);
+        return json_encode(['error' => 'Curl error: ' . curl_error($ch)]);
     }
     
-    $lastFmTracks = $lastFmData['toptracks']['track'];
-    $spotifyTracks = [];
-    $seenUris = [];
+    curl_close($ch);
     
-    foreach ($lastFmTracks as $lastTrack) {
-        $artist = $lastTrack['artist']['name'];
-        $trackName = $lastTrack['name'];
+    $data = json_decode($response, true);
+    
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        return json_encode(['error' => 'JSON parsing error: ' . json_last_error_msg()]);
+    }
+    
+    if (!isset($data['playlist']) || !is_array($data['playlist'])) {
+        return json_encode(['error' => 'Invalid LastFM response format']);
+    }
+    
+    $trackData = [];
+    foreach ($data['playlist'] as $song) {
+        $songName = $song['name'] ?? $song['_name'] ?? '';
+        $artistName = '';
         
+        if (isset($song['artists']) && !empty($song['artists'])) {
+            $artistName = $song['artists'][0]['name'] ?? $song['artists'][0]['_name'] ?? '';
+        }
+        
+        if (empty($songName) || empty($artistName)) {
+            continue;
+        }
         try {
-            $searchResult = $api->search("track:{$trackName} artist:{$artist}", 'track', ['limit' => 1]);
+            $searchResults = $api->search("track:{$songName} artist:{$artistName}", 'track', ['limit' => 1]);
             
-            if (!empty($searchResult->tracks->items)) {
-                $track = $searchResult->tracks->items[0];
+            if (isset($searchResults->tracks->items[0])) {
+                $track = $searchResults->tracks->items[0];
                 
-                if (in_array($track->uri, $seenUris)) {
-                    continue;
-                }
-                
-                $seenUris[] = $track->uri;
-                
-                $spotifyTracks[] = [
+                $trackData[] = [
+                    'uri' => $track->uri,
                     'id' => $track->id,
                     'name' => $track->name,
                     'artist' => implode(', ', array_map(function ($artist) {
@@ -48,22 +58,16 @@ function getRecommendedTracksLastFM($api, $username) {
                     'album' => $track->album->name,
                     'image' => $track->album->images[0]->url ?? 'img/default-album.png',
                     'duration_ms' => $track->duration_ms,
-                    'uri' => $track->uri,
                     'spotify_url' => $track->external_urls->spotify ?? '#'
                 ];
-                
-                if (count($spotifyTracks) >= 50) {
-                    break;
-                }
             }
         } catch (Exception $e) {
-            continue;
+            error_log("Error searching Spotify for {$songName} by {$artistName}: " . $e->getMessage());
         }
     }
-    shuffle($spotifyTracks);
-    $filteredTracks = filterSeenTracks($spotifyTracks, 'lastfm_' . $username);
+    $filteredTracks = filterSeenTracks($trackData, 'lastfm_' . $username);
+    shuffle($filteredTracks);
     
     return json_encode($filteredTracks);
 }
-
 ?>
