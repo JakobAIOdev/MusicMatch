@@ -77,7 +77,7 @@ function showLoginNotice()
             align-items: center;
             gap: 15px;
         }
-
+        
         @media (max-width: 576px) {
             .login-notice-content {
                 padding: 20px;

@@ -14,27 +14,17 @@
             <div class="footer-section">
                 <h3>Quick Links</h3>
                 <ul class="footer-links">
-                    <li><a href="#">Home</a></li>
-                    <li><a href="#">Features</a></li>
-                    <li><a href="#">Web Player</a></li>
-                    <li><a href="#">Music Swiper</a></li>
-                    <li><a href="#">About Us</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-section">
-                <h3>Support</h3>
-                <ul class="footer-links">
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="#">Contact Us</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="./index.php">Home</a></li>
+                    <li><a href="./features.php">Features</a></li>
+                    <li><a href="./favorites.php">Favorites</a></li>
+                    <li><a href="./swiper.php">Music Swiper</a></li>
+                    <li><a href="./about.php">About Us</a></li>
                 </ul>
             </div>
         </div>
         
         <div class="footer-bottom">
-            <p>&copy; <?php echo date('Y'); ?> MusicMatch. All rights reserved.</p>
+            <p>&copy; <?php echo date('Y'); ?> MusicMatch.</p>
         </div>
     </div>
 </footer>
@@ -43,6 +33,7 @@
 <script src="./assets/js/logout.js"></script>
 <script src="./assets/js/burger-menu.js"></script>
 <script src="./assets/js/login-cleanup.js"></script>
+<script src="./assets/js/smoothscrolling.js"></script>
 <?php if (isset($additionalScripts)) echo $additionalScripts; ?>
 </body>
 </html>

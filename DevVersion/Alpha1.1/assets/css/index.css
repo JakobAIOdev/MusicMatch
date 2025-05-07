@@ -426,6 +426,8 @@ body {
     transform: rotate(15deg) scale(1.15);
 }
 
+
+
 /* Responsive styles */
 @media (max-width: 992px) {
     .hero-title { font-size: 2.8rem; }
@@ -435,11 +437,14 @@ body {
 }
 
 @media (max-width: 768px) {
-    .hero-title { font-size: 2.2rem; }
+    .hero-section {height: 80vh;}
+    .hero-content { padding-top: 8rem; }
+    .hero-title {font-size: 2.2rem;}
+    .hero-subtitle { width: 80%; }
     .hero-buttons .btn {
         margin-bottom: 10px;
         display: block;
-        width: 100%;
+        width: 80%;
     }
     .section { padding: 60px 0; }
     .section-title h2 { font-size: 2rem; }

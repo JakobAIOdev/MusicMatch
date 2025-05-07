@@ -27,11 +27,11 @@
 
             <nav class="site-nav" id="site-nav">
                 <ul class="nav-menu">
-                    <li><a href="../index.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'active' : ''; ?>">Home</a></li>
-                    <li><a href="../features.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'features.php') ? 'active' : ''; ?>">Features</a></li>
-                    <li><a href="../favorites.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'favorites.php') ? 'active' : ''; ?>">Favorites</a></li>
-                    <li><a href="../swiper.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'swiper.php') ? 'active' : ''; ?>">Swiper</a></li>
-                    <li><a href="#" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'about.php') ? 'active' : ''; ?>">About</a></li>
+                    <li><a href="./index.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'active' : ''; ?>">Home</a></li>
+                    <li><a href="./features.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'features.php') ? 'active' : ''; ?>">Features</a></li>
+                    <li><a href="./favorites.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'favorites.php') ? 'active' : ''; ?>">Favorites</a></li>
+                    <li><a href="./swiper.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'swiper.php') ? 'active' : ''; ?>">Swiper</a></li>
+                    <li><a href="./about.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'about.php') ? 'active' : ''; ?>">About</a></li>
                 </ul>
 
                 <div class="auth-buttons">
