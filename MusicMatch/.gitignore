@@ -1,0 +1,11 @@
+.DS_Store
+.vscode/
+
+vendor/
+composer.lock
+composer.phar
+
+config.php
+
+logs/
+*.log
