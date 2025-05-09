@@ -3,12 +3,10 @@ require_once '../includes/session_handler.php';
 require_once '../vendor/autoload.php';
 require_once '../includes/config.php';
 
-error_log('CALLBACK DEBUG: Request received');
-error_log('CALLBACK DEBUG: Session ID: ' . session_id());
-error_log('CALLBACK DEBUG: State from Request: ' . ($_GET['state'] ?? 'missing'));
-error_log('CALLBACK DEBUG: State from Session: ' . ($_SESSION['spotify_auth_state'] ?? 'missing'));
-error_log('CALLBACK DEBUG: Code present: ' . (isset($_GET['code']) ? 'yes' : 'no'));
-error_log('CALLBACK DEBUG: HTTP_HOST: ' . $_SERVER['HTTP_HOST']);
+if (isset($_GET['error'])) {
+    header('Location: callback.php?error=' . $_GET['error'] . (isset($_GET['message']) ? '&message=' . $_GET['message'] : ''));
+    exit;
+}
 
 if (isset($_GET['redirect'])) {
     $_SESSION['login_redirect'] = $_GET['redirect'];

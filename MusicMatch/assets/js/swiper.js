@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 const swipeForm = document.getElementById("swipe-form");
 if (swipeForm) {
-    swipeForm.addEventListener("submit", function() {
+    swipeForm.addEventListener("submit", function(e) {
         if (likedSongs && likedSongs.length > 0) {
             localStorage.setItem("musicmatch_liked_songs", JSON.stringify(likedSongs));
             
@@ -75,6 +75,25 @@ if (swipeForm) {
                 body: JSON.stringify({ songs: likedSongs }),
                 keepalive: true
             });
+        }
+        const swipeMethod = document.getElementById("swipe-method");
+        const lastFmUsername = document.getElementById("lasFm-username");
+        
+        if (swipeMethod && swipeMethod.value === "lastFM" && lastFmUsername && lastFmUsername.value) {
+            let loadingOverlay = document.getElementById("loading-overlay");
+            if (!loadingOverlay) {
+                loadingOverlay = document.createElement("div");
+                loadingOverlay.id = "loading-overlay";
+                loadingOverlay.className = "loading-overlay";
+                loadingOverlay.innerHTML = `
+                    <div class="spinner"></div>
+                    <p class="loading-text">Loading LastFM recommendations for ${lastFmUsername.value}...</p>
+                `;
+                document.body.appendChild(loadingOverlay);
+            }
+            setTimeout(() => {
+                loadingOverlay.classList.add("active");
+            }, 10);
         }
     });
 }

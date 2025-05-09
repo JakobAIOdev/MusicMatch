@@ -210,6 +210,7 @@ $time_descriptions = [
         const confirmCreateBtn = document.getElementById('confirm-create-btn');
         const cancelCreateBtn = document.getElementById('cancel-create-btn');
         const createForm = document.getElementById('create-playlist-form');
+        fixMobileNavigation();
 
         if (createBtn && createForm) {
             createBtn.addEventListener('click', function() {
@@ -300,6 +301,21 @@ $time_descriptions = [
             }, 100 * (index + 1));
         });
     }
+
+    function fixMobileNavigation() {
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+        const navLinks = document.querySelectorAll('.view-nav a, .time-nav a');
+        
+        navLinks.forEach(link => {
+            link.addEventListener('touchstart', function(e) {
+                if (!this.classList.contains('active')) {
+                    e.preventDefault();
+                    window.location.href = this.href;
+                }
+            });
+        });
+    }
+}
 </script>
 
 <script src="./assets/js/animations.js"></script>

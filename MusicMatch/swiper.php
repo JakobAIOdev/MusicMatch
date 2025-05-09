@@ -210,6 +210,10 @@ try {
             </ul>
         </div>
     </div>
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <p class="loading-text">Loading LastFM recommendations...</p>
+    </div>
 </div>
 <!--  Spotify Web Playback SDK library-->
 <script src="https://sdk.scdn.co/spotify-player.js"></script>
