@@ -168,39 +168,81 @@ function createCard(track) {
         volumeSlider.addEventListener("input", handleVolumeChange);
     }
 
-    const hammer = new Hammer(card);
-    hammer.on("swipeleft", () => handleSwipe("left"));
-    hammer.on("swiperight", () => handleSwipe("right"));
+    const cardImageContainer = card.querySelector('.card-image-container');
+    const hammer = new Hammer(cardImageContainer);
+
+    hammer.get('pan').set({ 
+        direction: Hammer.DIRECTION_HORIZONTAL,
+        threshold: 10
+    });
+    
+    hammer.get('swipe').set({ 
+        direction: Hammer.DIRECTION_HORIZONTAL, 
+        threshold: 30,
+        velocity: 0.3
+    });
+
+    let isScrolling = false;
+    let startY = 0;
+    let startX = 0;
+
+
+    card.addEventListener('touchstart', function(e) {
+        startY = e.touches[0].clientY;
+        startX = e.touches[0].clientX;
+        isScrolling = false;
+    }, { passive: true });
+    
+    card.addEventListener('touchmove', function(e) {
+        if (isScrolling) return;
+        
+        const currentY = e.touches[0].clientY;
+        const currentX = e.touches[0].clientX;
+        const deltaY = Math.abs(currentY - startY);
+        const deltaX = Math.abs(currentX - startX);
+        
+        if (deltaY > deltaX * 1.5 && deltaY > 20) {
+        isScrolling = true;
+        }
+    }, { passive: true });
+
+    hammer.on("swipeleft", () => {
+        if (!isScrolling) handleSwipe("left");
+    });
+    
+    hammer.on("swiperight", () => {
+        if (!isScrolling) handleSwipe("right");
+    });
 
     hammer.on("pan", (e) => {
-        if (isAnimating) return;
+    if (isAnimating || isScrolling) return;
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX) * 1.8) {
+        return;
+    }
 
-        const xPos = e.deltaX;
-        card.style.transform = `translateX(${xPos}px) rotate(${
-            xPos * 0.03
-        }deg)`;
+    const xPos = e.deltaX;
+    card.style.transform = `translateX(${xPos}px) rotate(${xPos * 0.03}deg)`;
+    if (xPos > 40) {
+        card.classList.add("dragging-right");
+        card.classList.remove("dragging-left");
+    } else if (xPos < -40) {
+        card.classList.add("dragging-left");
+        card.classList.remove("dragging-right");
+    } else {
+        card.classList.remove("dragging-right", "dragging-left");
+    }
 
-        if (xPos > 50) {
-            card.classList.add("dragging-right");
-            card.classList.remove("dragging-left");
-        } else if (xPos < -50) {
-            card.classList.add("dragging-left");
-            card.classList.remove("dragging-right");
+    if (e.isFinal) {
+        if (xPos > 80) {
+            handleSwipe("right");
+        } else if (xPos < -80) {
+            handleSwipe("left");
         } else {
+            card.style.transform = "";
             card.classList.remove("dragging-right", "dragging-left");
         }
-
-        if (e.isFinal) {
-            if (xPos > 100) {
-                handleSwipe("right");
-            } else if (xPos < -100) {
-                handleSwipe("left");
-            } else {
-                card.style.transform = "";
-                card.classList.remove("dragging-right", "dragging-left");
-            }
-        }
-    });
+    }
+});
     playCurrentTrack();
 }
 
@@ -240,7 +282,7 @@ function handleSwipe(direction) {
                 '<div class="no-more-songs">No more songs available to swipe</div>';
             isAnimating = false;
         }
-    }, 600); // Match animation duration in CSS
+    }, 600);
 }
 
 function likeCurrentTrack() {
@@ -312,7 +354,7 @@ function playCurrentTrack() {
         console.error("No device ID available");
         return;
     }
-     */
+    */
 
     if (!tracks || currentTrackIndex >= tracks.length) {
         console.error("No tracks available or invalid track index");
