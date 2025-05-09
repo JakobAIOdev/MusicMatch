@@ -122,7 +122,7 @@ $time_descriptions = [
 ];
 ?>
 <section>
-    <h1>Your Top <?php echo ucfirst($view_type); ?> on Spotify</h1>
+    <h1>Your Top <span><?php echo ucfirst($view_type); ?></span> on Spotify</h1>
 
     <div class="nav-wrapper">
         <div class="nav-content">
@@ -192,7 +192,7 @@ $time_descriptions = [
                             <p>Album: <?php echo htmlspecialchars($item->album->name); ?></p>
                         <?php endif; ?>
                     </div>
-                    <a href="<?php echo $item->external_urls->spotify; ?>" class="spotify-button" target="_blank">
+                    <a href="<?php echo $item->external_urls->spotify; ?>" class="spotify-button spotify-button-favorites" target="_blank">
                         <img class="spotify-icon" src="./assets/img/icons/spotify-primary-white.svg" alt="Spotify">
                         <span>Listen on Spotify</span>
                     </a>

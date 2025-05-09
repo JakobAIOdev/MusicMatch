@@ -11,6 +11,10 @@ h1 {
     text-align: center;
 }
 
+h1 span{
+    color: var(--primary);
+}
+
 .nav-wrapper {
     margin-bottom: 20px;
 }
@@ -211,16 +215,35 @@ h1 {
     box-shadow: 0 10px 20px rgba(0,0,0,0.12);
 }
 
-
+.spotify-button-favorites {
+    height: 2.2rem;
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 11rem;
+}
 
 .image {
     object-fit: cover;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    height: 130px;
+    width: 130px;
+    border-radius: var(--radius-md);
 }
 
 .item-info {
     display: flex;
     flex-direction: column;
+    padding-left: 2rem;
 }
 
 .item-info h3 {
@@ -235,35 +258,24 @@ h1 {
     font-size: 0.95rem;
 }
 
-@media (min-width: 769px) {
-    .card {
-        flex-direction: row;
-        text-align: left;
-    }
-    
-    .image {
-        width: 120px;
-        height: 120px;
-        margin-right: 20px;
-        border-radius: 6px;
-    }
-    
-    .item-info {
-        flex: 1;
-    }
-    
-    .spotify-button {
-        position: absolute;
-        bottom: 16px;
-        right: 16px;
-    }
-}
 
 @media (max-width: 768px) {
     .card {
         flex-direction: column;
         text-align: center;
         padding-bottom: 80px;
+        position: relative;
+    }
+
+    .card .spotify-button,
+    .spotify-button-favorites {
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+        width: calc(100% - 40px);
+        max-width: 200px;
     }
     
     .image {
@@ -276,14 +288,7 @@ h1 {
     
     .item-info {
         width: 100%;
-    }
-    
-    .spotify-button {
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        margin-top: 15px;
+        padding: 0;
     }
     .nav-content {
         flex-direction: column;
@@ -293,6 +298,7 @@ h1 {
     .view-nav, .time-nav, .action-nav {
         width: 100%;
         justify-content: center;
+        font-size: 0.8rem;
     }
     
     .action-nav {

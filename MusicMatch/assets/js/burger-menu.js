@@ -3,9 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const siteNav = document.getElementById('site-nav');
     
     if (mobileMenuToggle && siteNav) {
-        // Toggle menu when clicking the burger button
         mobileMenuToggle.addEventListener('click', function(event) {
-            event.stopPropagation(); // Prevent this click from closing the menu immediately
+            event.stopPropagation();
             this.classList.toggle('menu-open');
             document.body.classList.toggle('menu-open');
             
@@ -17,8 +16,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 siteNav.classList.remove('active');
             }
         });
-
-        // Close menu when clicking outside
         document.addEventListener('click', function(event) {
             if (siteNav.classList.contains('active') && 
                 !siteNav.contains(event.target) && 
@@ -30,7 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Prevent clicks inside the menu from closing it
         siteNav.addEventListener('click', function(event) {
             event.stopPropagation();
         });

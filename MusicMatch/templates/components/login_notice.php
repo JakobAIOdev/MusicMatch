@@ -46,7 +46,7 @@ function showLoginNotice()
             position: relative;
         }
 
-        #close-btn:hover{
+        #close-btn:hover {
             color: var(--gray);
         }
 
@@ -77,7 +77,12 @@ function showLoginNotice()
             align-items: center;
             gap: 15px;
         }
-        
+
+        #close-btn:hover {
+            background-color: var(--primary-dark);
+            color: var(--white);
+        }
+
         @media (max-width: 576px) {
             .login-notice-content {
                 padding: 20px;

@@ -166,10 +166,44 @@ function createCard(track) {
     const volumeSlider = document.getElementById("volume");
     if (volumeSlider) {
         volumeSlider.addEventListener("input", handleVolumeChange);
+        
+        volumeSlider.addEventListener("touchstart", function(e) {
+            e.stopPropagation();
+        }, { passive: false });
+        
+        volumeSlider.addEventListener("touchmove", function(e) {
+            e.stopPropagation();
+        }, { passive: false });
+        
+        volumeSlider.addEventListener("mousedown", function(e) {
+            e.stopPropagation();
+        });
+        
+        volumeSlider.addEventListener("click", function(e) {
+            e.stopPropagation();
+        });
     }
 
-    const cardImageContainer = card.querySelector('.card-image-container');
-    const hammer = new Hammer(cardImageContainer);
+    const volumeControl = card.querySelector(".volume-control");
+    if (volumeControl) {
+        volumeControl.addEventListener("touchstart", function(e) {
+            e.stopPropagation();
+        }, { passive: false });
+        
+        volumeControl.addEventListener("touchmove", function(e) {
+            e.stopPropagation();
+        }, { passive: false });
+        
+        volumeControl.addEventListener("mousedown", function(e) {
+            e.stopPropagation();
+        });
+        
+        volumeControl.addEventListener("click", function(e) {
+            e.stopPropagation();
+        });
+    }
+
+    const hammer = new Hammer(card);
 
     hammer.get('pan').set({ 
         direction: Hammer.DIRECTION_HORIZONTAL,

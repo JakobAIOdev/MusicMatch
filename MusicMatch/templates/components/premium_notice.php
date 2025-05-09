@@ -46,8 +46,14 @@ function showPremiumNotice($featureName = "Feature") {
             position: relative;
         }
 
-        #close-btn:hover{
-            color: var(--gray);
+        #close-btn{
+            justify-content: center;
+            align-items: center;
+        }
+
+        #close-btn:hover {
+            background-color: var(--primary-dark);
+            color: var(--white);
         }
         
         .premium-notice-icon {
@@ -75,6 +81,7 @@ function showPremiumNotice($featureName = "Feature") {
             display: flex;
             justify-content: center;
             gap: 10px;
+            height: 2.5rem;
         }
         
         @media (max-width: 576px) {

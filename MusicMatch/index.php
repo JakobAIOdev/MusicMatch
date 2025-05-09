@@ -14,7 +14,7 @@ require_once './includes/spotify_utils.php';
     <div class="container">
         <div class="hero-content">
             <h1 class="hero-title">Best <span>MusicSwiper</span> for <br> Tailored Listening Experiences</h1>
-            <p class="hero-subtitle">Discover new tracks, create personalized playlists,<br>
+            <p class="hero-subtitle">Discover new tracks, create personalized playlists,
                 and enjoy seamless Spotify integration all in one place.</p>
             <div class="hero-buttons">
                 <?php /* if (!isset($_SESSION['spotify_access_token'])): ?>
