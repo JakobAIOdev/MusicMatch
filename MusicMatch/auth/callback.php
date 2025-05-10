@@ -125,7 +125,7 @@ function showAuthErrorPage($title, $errorMessage) {
                 </div>
                 
                 <div class="auth-info">
-                    <p>Need access for testing? Contact: <a href="musicmatch@jakobaio.com">musicmatch@jakobaio.com</a></p>
+                    <p>Need access for testing? Contact: <a href="mailto:musicmatch@jakobaio.com">musicmatch@jakobaio.com</a></p>
                 </div>
             </div>
         </div>
