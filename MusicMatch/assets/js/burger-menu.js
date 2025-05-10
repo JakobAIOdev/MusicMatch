@@ -1,6 +1,27 @@
 document.addEventListener('DOMContentLoaded', function() {
     const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
     const siteNav = document.getElementById('site-nav');
+    const authButtons = document.querySelector('.auth-buttons');
+    
+    function setupMobileMenu() {
+    const mobileAuthButtonsElement = document.querySelector('.mobile-auth-buttons');
+    
+    if (window.innerWidth <= 992) {
+        if (!mobileAuthButtonsElement && authButtons) {
+            const mobileAuthButtons = document.createElement('div');
+            mobileAuthButtons.className = 'mobile-auth-buttons';
+            mobileAuthButtons.innerHTML = authButtons.innerHTML;
+            siteNav.appendChild(mobileAuthButtons);
+        }
+    } else {
+        if (mobileAuthButtonsElement) {
+            mobileAuthButtonsElement.remove();
+        }
+    }
+}
+    setupMobileMenu();
+    
+    window.addEventListener('resize', setupMobileMenu);
     
     if (mobileMenuToggle && siteNav) {
         mobileMenuToggle.addEventListener('click', function(event) {
@@ -16,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 siteNav.classList.remove('active');
             }
         });
+        
         document.addEventListener('click', function(event) {
             if (siteNav.classList.contains('active') && 
                 !siteNav.contains(event.target) && 

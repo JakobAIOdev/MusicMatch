@@ -20,7 +20,7 @@ $me = $api->me();
 
 ?>
 <div class="profile-container">
-    <h1>Your Spotify Profile</h1>
+    <h1>Your Spotify <span>Profile</span></h1>
 
     <div class="profile">
         <?php if (isset($me->images[0]->url)): ?>
