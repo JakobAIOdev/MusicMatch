@@ -118,3 +118,47 @@ function getPlaylistSongs($api, $playlistId){
     }
     return $trackData;
 }
+
+function artistDiscography($api, $artistName) {
+    $artistResult = $api->search($artistName, 'artist', ['limit' => 1]);
+    
+    if (empty($artistResult->artists->items)) {
+        die('Artist not found');
+    }
+    
+    $artist = $artistResult->artists->items[0];
+    $artistId = $artist->id;
+    
+    $albums = $api->getArtistAlbums($artistId, [
+        'limit' => 50, 
+        'include_groups' => 'album,single'
+    ]);
+    
+    $trackData = [];
+    $processedTrackIds = [];
+    foreach ($albums->items as $album) {
+        $albumTracks = $api->getAlbumTracks($album->id);
+        
+        foreach ($albumTracks->items as $track) {
+            if (!in_array($track->id, $processedTrackIds)) {
+                $processedTrackIds[] = $track->id;
+                
+                $trackData[] = [
+                    'uri' => $track->uri,
+                    'id' => $track->id,
+                    'name' => $track->name,
+                    'artist' => implode(', ', array_map(function ($artist) {
+                        return $artist->name;
+                    }, $track->artists)),
+                    'album' => $album->name,
+                    'image' => $album->images[0]->url ?? 'img/default-album.png',
+                    'duration_ms' => $track->duration_ms,
+                    'spotify_url' => $track->external_urls->spotify ?? '#'
+                ];
+            }
+        }
+    }
+    $filteredTracks = filterSeenTracks($trackData, 'artist_' . $artistId);
+    shuffle($filteredTracks);
+    return json_encode($filteredTracks);
+}

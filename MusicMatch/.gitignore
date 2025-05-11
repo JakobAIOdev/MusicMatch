@@ -9,5 +9,3 @@ config.php
 
 logs/
 *.log
-
-impressum.php

@@ -112,11 +112,22 @@ try {
                                 <option value="100_most_streamed" <?php echo ($swipeMethod === '100_most_streamed') ? 'selected' : ''; ?>>100 Most Streamed Songs on Spotify</option>
                                 <option value="lastFM" <?php echo ($swipeMethod === 'lastFM') ? 'selected' : ''; ?>>LastFM</option>
                                 <option value="playlist" <?php echo ($swipeMethod === 'playlist') ? 'selected' : ''; ?>>Playlist</option>
+                                <option value="artist" <?php echo ($swipeMethod === 'artist') ? 'selected' : ''; ?>>Artist Discography</option>
                                 <option value="random" <?php echo ($swipeMethod === 'random') ? 'selected' : ''; ?>>Random</option>
                                 <option value="short_term" <?php echo ($swipeMethod === 'short_term') ? 'selected' : ''; ?>>Favorites 4-Weeks</option>
                                 <option value="medium_term" <?php echo ($swipeMethod === 'medium_term') ? 'selected' : ''; ?>>Favorites 6-Months</option>
                                 <option value="long_term" <?php echo ($swipeMethod === 'long_term') ? 'selected' : ''; ?>>Favorites All</option>
                             </select>
+
+                            <div id="artist-input-group" class="<?php echo ($swipeMethod === 'artist') ? 'visible' : ''; ?>">
+                                <div class="autocomplete-container">
+                                    <input type="text" id="artist-name" name="artist-name" placeholder="Enter artist name" 
+                                        value="<?php echo isset($_GET['artist-name']) ? htmlspecialchars($_GET['artist-name']) : ''; ?>"
+                                        required autocomplete="off">
+                                    <div id="artist-suggestions" class="autocomplete-suggestions"></div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Apply</button>
+                            </div>
 
                             <div id="playlist-input-group" class="<?php echo ($swipeMethod === 'playlist') ? 'visible' : ''; ?>">
                                 <input type="url" id="playlist-link" name="playlist-link" placeholder="Paste Spotify playlist link"
@@ -244,7 +255,15 @@ try {
         $tracksJson = billboardHot100($api);
     }elseif ($swipeMethod === '100_most_streamed'){
         $tracksJson = mostStreamed100($api);
-    }else {
+    }elseif ($swipeMethod === 'artist') {
+        if (isset($_GET['artist-name'])) {
+            $artistName = $_GET['artist-name'];
+            $tracksJson = artistDiscography($api, $artistName);
+        } else {
+            die('Artist name is required');
+        }
+    }
+    else {
         die('Invalid swipe method');
     }
     ?>
