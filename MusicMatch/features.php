@@ -15,9 +15,11 @@ require_once './includes/spotify_utils.php';
         <p class="intro-text">Discover how MusicMatch can enhance your music discovery experience with our powerful features, designed for personalized music exploration and playlist creation.</p>
     </div>
     <div class="down-arrow-container">
-        <a href="#music-swiper" class="down-arrow">
-            <img src="./assets/img/icons/arrow-down.svg" alt="">
-        </a>
+        <div class="down-arrow-wrapper">
+            <a href="#music-swiper" class="down-arrow">
+                <img src="./assets/img/icons/arrow-down.svg" alt="">
+            </a>
+        </div>
     </div>
 </section>
 
@@ -49,6 +51,8 @@ require_once './includes/spotify_utils.php';
                             <ul>
                                 <li><strong>Random:</strong> Discover tracks based on your listening history</li>
                                 <li><strong>Billboard Hot 100:</strong> Explore current trending tracks</li>
+                                <li><strong>100 Most Streamed Songs on Spotify:</strong> Explore the most streamed tracks</li>
+                                <li><strong>Artist Discography:</strong> Explore different tracks from a selected Artist</li>
                                 <li><strong>Favorites (4-Weeks/6-Months/All-Time):</strong> Rediscover your top tracks from different time periods</li>
                                 <li><strong>Playlist:</strong> Use a specific Spotify playlist as your source</li>
                                 <li><strong>LastFM:</strong> Get recommendations based on your LastFM profile</li>

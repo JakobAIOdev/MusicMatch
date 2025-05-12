@@ -474,6 +474,9 @@ function updateLikedSongsList() {
             <a href="${song.spotify_url}" class="liked-song-spotify" target="_blank">
                 <img class="spotify-icon-sm" src="${BASE_API_URL}assets/img/icons/spotify-primary-green.svg" alt="Open on Spotify">
             </a>
+            <button class="liked-song-remove" data-index="${index}">
+                <img src="${BASE_API_URL}assets/img/icons/remove.svg" alt="Remove" width="16" height="16">
+            </button>
         `;
 
         likedSongsList.appendChild(li);
@@ -485,6 +488,23 @@ function updateLikedSongsList() {
             playLikedSong(index);
         });
     });
+
+    document.querySelectorAll(".liked-song-remove").forEach((button) => {
+        button.addEventListener("click", (e) => {
+            const index = parseInt(e.currentTarget.getAttribute("data-index"));
+            removeLikedSong(index);
+        });
+    });
+}
+
+function removeLikedSong(index) {
+    if (index >= 0 && index < likedSongs.length) {
+        const songName = likedSongs[index].name;
+        likedSongs.splice(index, 1);
+        updateLikedSongsList();
+        saveLikedSongs(likedSongs);
+        showNotification(`"${songName}" removed from liked songs`, "info");
+    }
 }
 
 function playLikedSong(index) {

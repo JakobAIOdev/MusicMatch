@@ -36,6 +36,9 @@
     margin-top: 7rem;
     left: 50%;
     transform: translateX(-50%);
+}
+
+.down-arrow-wrapper {
     animation: float 2s infinite ease-in-out;
 }
 
@@ -59,8 +62,8 @@
 }
 
 @keyframes float {
-    0%, 100% { transform: translateY(0) translateX(-50%); opacity: 0.8; }
-    50% { transform: translateY(10px) translateX(-50%); opacity: 1; }
+    0%, 100% { transform: translateY(0); opacity: 0.8; }
+    50% { transform: translateY(10px); opacity: 1; }
 }
 
 /* =============== FEATURE SECTIONS =============== */

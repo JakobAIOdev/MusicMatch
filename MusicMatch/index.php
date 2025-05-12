@@ -28,9 +28,11 @@ require_once './includes/spotify_utils.php';
                 </a>
             </div>
             <div class="down-arrow-container">
-                <a href="#features" class="down-arrow">
-                    <img src="./assets/img/icons/arrow-down.svg" alt="">
-                </a>
+                <div class="down-arrow-wrapper">
+                    <a href="#features" class="down-arrow">
+                        <img src="./assets/img/icons/arrow-down.svg" alt="">
+                    </a>
+                </div>
             </div>
         </div>
     </div>

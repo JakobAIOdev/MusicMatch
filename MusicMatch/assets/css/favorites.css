@@ -279,9 +279,9 @@ h1 span{
     }
     
     .image {
-        width: 180px;
-        height: 180px;
-        margin: 0 auto 16px;
+        width: 140px;
+        height: 140px;
+        margin: 0 auto 10px;
         border-radius: 8px;
         object-fit: cover;
     }
