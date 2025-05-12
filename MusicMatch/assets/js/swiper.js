@@ -150,6 +150,7 @@ function updateFormInputs() {
         inputGroup.classList.remove("lastfm-mode");
         inputGroup.classList.remove("artist-mode");
     }
+
     if (swipeMethod.value === "playlist" && playlistInputGroup) {
         playlistInputGroup.classList.add("visible");
         if (inputGroup) inputGroup.classList.add("playlist-mode");
@@ -781,8 +782,8 @@ function searchArtists(query) {
                         <span>${artist.name}</span>
                     `;
                     suggestion.addEventListener("click", function () {
-                        document.getElementById("artist-name").value =
-                            artist.name;
+                        document.getElementById("artist-name").value = artist.name;
+                        document.getElementById("artist-id").value = artist.id;
                         suggestionsContainer.style.display = "none";
                     });
                     suggestionsContainer.appendChild(suggestion);
@@ -1035,12 +1036,15 @@ document.addEventListener("DOMContentLoaded", function () {
         if (artistInputGroup) {
             const artistSubmitBtn = artistInputGroup.querySelector("button");
             if (artistSubmitBtn) {
-                artistSubmitBtn.addEventListener("click", function (e) {
-                    const input = artistInput;
-                    if (!input.value) {
+                artistSubmitBtn.addEventListener("click", function(e) {
+                    const artistInput = document.getElementById("artist-name");
+                    if (!artistInput || !artistInput.value.trim()) {
                         e.preventDefault();
-                        input.focus();
+                        if (artistInput) artistInput.focus();
+                        return false;
                     }
+                    const form = document.getElementById("swipe-form");
+                    if (form) form.submit();
                 });
             }
         }

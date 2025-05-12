@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title><?php echo isset($pageTitle) ? $pageTitle . ' - MusicMatch' : 'MusicMatch'; ?></title>
     <link rel="icon" type="image/x-icon" href="<?php echo $BASE_URL; ?>assets/img/icons/musicmatch-logo.svg">
     <link rel="stylesheet" href="<?php echo $BASE_URL; ?>assets/css/fonts.css">

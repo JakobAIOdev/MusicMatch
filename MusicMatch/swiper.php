@@ -124,6 +124,8 @@ try {
                                     <input type="text" id="artist-name" name="artist-name" placeholder="Enter artist name" 
                                         value="<?php echo isset($_GET['artist-name']) ? htmlspecialchars($_GET['artist-name']) : ''; ?>"
                                         required autocomplete="off">
+                                    <input type="hidden" id="artist-id" name="artist-id" 
+                                        value="<?php echo isset($_GET['artist-id']) ? htmlspecialchars($_GET['artist-id']) : ''; ?>">
                                     <div id="artist-suggestions" class="autocomplete-suggestions"></div>
                                 </div>
                                 <button type="submit" class="btn btn-primary">Apply</button>
@@ -258,7 +260,8 @@ try {
     }elseif ($swipeMethod === 'artist') {
         if (isset($_GET['artist-name'])) {
             $artistName = $_GET['artist-name'];
-            $tracksJson = artistDiscography($api, $artistName);
+            $artistId = isset($_GET['artist-id']) ? $_GET['artist-id'] : null;
+            $tracksJson = artistDiscography($api, $artistName, $artistId);
         } else {
             die('Artist name is required');
         }

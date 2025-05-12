@@ -147,6 +147,17 @@ h1 { color: var(--primary);}
         margin-right: 0;
         margin-bottom: 8px;
         width: 100%;
+        font-size: 16px;
+        touch-action: manipulation;
+    }
+
+    .autocomplete-container input {
+        font-size: 16px;
+        touch-action: manipulation;
+    }
+
+    .artist-suggestion {
+        font-size: 16px;
     }
     .playlist-mode #swipe-method {
         width: 100%;

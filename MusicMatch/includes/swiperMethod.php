@@ -119,16 +119,24 @@ function getPlaylistSongs($api, $playlistId){
     return $trackData;
 }
 
-function artistDiscography($api, $artistName) {
-    $artistResult = $api->search($artistName, 'artist', ['limit' => 1]);
-    
-    if (empty($artistResult->artists->items)) {
-        die('Artist not found');
+function artistDiscography($api, $artistName, $artistId = null) {
+    if ($artistId) {
+        try {
+            $artist = $api->getArtist($artistId);
+        } catch (Exception $e) {
+            $artistId = null;
+        }
     }
-    
-    $artist = $artistResult->artists->items[0];
-    $artistId = $artist->id;
-    
+    if (!$artistId) {
+        $artistResult = $api->search($artistName, 'artist', ['limit' => 1]);
+        
+        if (empty($artistResult->artists->items)) {
+            die('Artist not found');
+        }
+        
+        $artist = $artistResult->artists->items[0];
+        $artistId = $artist->id;
+    }
     $albums = $api->getArtistAlbums($artistId, [
         'limit' => 50, 
         'include_groups' => 'album,single'
