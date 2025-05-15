@@ -53,22 +53,47 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    document.querySelectorAll("#playlist-input-group button, #lasFm-input-group button")
-        .forEach((button) => {
-            button.addEventListener("click", function (e) {
-                const input = this.previousElementSibling;
-                if (!input.value) {
-                    e.preventDefault();
-                    input.focus();
+    if (lastFmInputGroup) {
+        const lastFmSubmitBtn = lastFmInputGroup.querySelector("button");
+        if (lastFmSubmitBtn) {
+            lastFmSubmitBtn.addEventListener("click", function (e) {
+                e.preventDefault();
+                
+                const lastFmInput = document.getElementById("lasFm-username");
+                if (!lastFmInput || !lastFmInput.value.trim()) {
+                    if (lastFmInput) lastFmInput.focus();
+                    return false;
                 }
+                
+                // Update timestamp to force reload
+                const timestampField = document.querySelector('input[name="timestamp"]');
+                if (timestampField) {
+                    timestampField.value = Date.now();
+                } else {
+                    // Create timestamp field if it doesn't exist
+                    const newTimestamp = document.createElement("input");
+                    newTimestamp.type = "hidden";
+                    newTimestamp.name = "timestamp";
+                    newTimestamp.value = Date.now();
+                    document.getElementById("swipe-form").appendChild(newTimestamp);
+                }
+                
+                // Show loading overlay
+                showLoadingOverlay(`Loading LastFM recommendations for ${lastFmInput.value}...`);
+                
+                // Submit the form after a brief delay to ensure loading overlay appears
+                setTimeout(() => {
+                    document.getElementById("swipe-form").submit();
+                }, 50);
             });
-    });
+        }
+    }
 
     const artistInputGroup = document.getElementById("artist-input-group");
     if (artistInputGroup) {
         const artistSubmitBtn = artistInputGroup.querySelector("button");
         if (artistSubmitBtn) {
-            artistSubmitBtn.addEventListener("click", function(e) {
+            artistSubmitBtn.addEventListener("click", function (e) {
                 const artistInput = document.getElementById("artist-name");
                 if (!artistInput || !artistInput.value.trim()) {
                     e.preventDefault();
@@ -99,31 +124,30 @@ if (swipeForm) {
                 keepalive: true,
             });
         }
-        const swipeMethod = document.getElementById("swipe-method");
-        const lastFmUsername = document.getElementById("lasFm-username");
-
-        if (
-            swipeMethod &&
-            swipeMethod.value === "lastFM" &&
-            lastFmUsername &&
-            lastFmUsername.value
-        ) {
-            let loadingOverlay = document.getElementById("loading-overlay");
-            if (!loadingOverlay) {
-                loadingOverlay = document.createElement("div");
-                loadingOverlay.id = "loading-overlay";
-                loadingOverlay.className = "loading-overlay";
-                loadingOverlay.innerHTML = `
-                    <div class="spinner"></div>
-                    <p class="loading-text">Loading LastFM recommendations for ${lastFmUsername.value}...</p>
-                `;
-                document.body.appendChild(loadingOverlay);
-            }
-            setTimeout(() => {
-                loadingOverlay.classList.add("active");
-            }, 10);
-        }
     });
+}
+
+function showLoadingOverlay(message) {
+    let loadingOverlay = document.getElementById("loading-overlay");
+    if (!loadingOverlay) {
+        loadingOverlay = document.createElement("div");
+        loadingOverlay.id = "loading-overlay";
+        loadingOverlay.className = "loading-overlay";
+        loadingOverlay.innerHTML = `
+            <div class="spinner"></div>
+            <p class="loading-text">${message}</p>
+        `;
+        document.body.appendChild(loadingOverlay);
+    } else {
+        loadingOverlay.querySelector('.loading-text').innerText = message;
+    }
+    sessionStorage.setItem('musicmatch_loading', 'true');
+    sessionStorage.setItem('musicmatch_loading_message', message);
+    
+
+    setTimeout(() => {
+        loadingOverlay.classList.add("active");
+    }, 10);
 }
 
 function updateFormInputs() {
@@ -669,7 +693,7 @@ function handleVolumeChange(e) {
 }
 
 // Initialize Spotify Player
-window.onSpotifyWebPlaybackSDKReady = () => {
+function initializeSpotifyPlayer() {
     player = new Spotify.Player({
         name: "MusicMatch Web Player",
         getOAuthToken: (cb) => {
@@ -728,6 +752,12 @@ window.onSpotifyWebPlaybackSDKReady = () => {
 
     player.connect();
 };
+
+if (typeof Spotify !== 'undefined') {
+    console.log("Spotify already loaded, initializing player");
+    initializeSpotifyPlayer();
+}
+
 function formatTime(ms) {
     const totalSeconds = Math.floor(ms / 1000);
     const minutes = Math.floor(totalSeconds / 60);
@@ -802,7 +832,8 @@ function searchArtists(query) {
                         <span>${artist.name}</span>
                     `;
                     suggestion.addEventListener("click", function () {
-                        document.getElementById("artist-name").value = artist.name;
+                        document.getElementById("artist-name").value =
+                            artist.name;
                         document.getElementById("artist-id").value = artist.id;
                         suggestionsContainer.style.display = "none";
                     });
@@ -1056,15 +1087,35 @@ document.addEventListener("DOMContentLoaded", function () {
         if (artistInputGroup) {
             const artistSubmitBtn = artistInputGroup.querySelector("button");
             if (artistSubmitBtn) {
-                artistSubmitBtn.addEventListener("click", function(e) {
+                artistSubmitBtn.addEventListener("click", function (e) {
+                    e.preventDefault();
+
                     const artistInput = document.getElementById("artist-name");
                     if (!artistInput || !artistInput.value.trim()) {
-                        e.preventDefault();
                         if (artistInput) artistInput.focus();
                         return false;
                     }
-                    const form = document.getElementById("swipe-form");
-                    if (form) form.submit();
+                    const timestampField = document.querySelector(
+                        'input[name="timestamp"]'
+                    );
+                    if (timestampField) {
+                        timestampField.value = Date.now();
+                    } else {
+                        const newTimestamp = document.createElement("input");
+                        newTimestamp.type = "hidden";
+                        newTimestamp.name = "timestamp";
+                        newTimestamp.value = Date.now();
+                        document
+                            .getElementById("swipe-form")
+                            .appendChild(newTimestamp);
+                    }
+                    showLoadingOverlay(
+                        `Loading tracks for ${artistInput.value}...`
+                    );
+
+                    setTimeout(() => {
+                        document.getElementById("swipe-form").submit();
+                    }, 50);
                 });
             }
         }

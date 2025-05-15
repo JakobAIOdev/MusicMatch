@@ -6,6 +6,7 @@ composer.lock
 composer.phar
 
 config.php
+spotify-debug.php
 
 logs/
 *.log

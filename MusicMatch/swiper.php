@@ -128,7 +128,8 @@ try {
                                         value="<?php echo isset($_GET['artist-id']) ? htmlspecialchars($_GET['artist-id']) : ''; ?>">
                                     <div id="artist-suggestions" class="autocomplete-suggestions"></div>
                                 </div>
-                                <button type="submit" class="btn btn-primary">Apply</button>
+                                <button type="submit" class="btn btn-primary" id="artist-submit-btn">Apply</button>
+                                <input type="hidden" name="timestamp" value="<?php echo time(); ?>">
                             </div>
 
                             <div id="playlist-input-group" class="<?php echo ($swipeMethod === 'playlist') ? 'visible' : ''; ?>">
@@ -142,7 +143,8 @@ try {
                                 <input type="text" id="lasFm-username" name="lasFm-username" placeholder="Paste LastFM username"
                                     value="<?php echo isset($_GET['lasFm-username']) ? htmlspecialchars($_GET['lasFm-username']) : ''; ?>"
                                     required>
-                                <button type="submit" class="btn btn-primary">Apply</button>
+                                <button type="submit" class="btn btn-primary" id="lastfm-submit-btn">Apply</button>
+                                <input type="hidden" name="timestamp" value="<?php echo time(); ?>">
                             </div>
                         </div>
                     </div>
@@ -225,18 +227,17 @@ try {
     </div>
     <div class="loading-overlay" id="loading-overlay">
         <div class="spinner"></div>
-        <p class="loading-text">Loading LastFM recommendations...</p>
+        <p class="loading-text">Loading...</p>
     </div>
 </div>
-<!--  Spotify Web Playback SDK library-->
-<script src="https://sdk.scdn.co/spotify-player.js"></script>
 <!--  Swipe library-->
 <script src="https://hammerjs.github.io/dist/hammer.min.js"></script>
 
 <script>
     <?php
     if ($swipeMethod === 'random') {
-        $tracksJson = getTopTracks($api);
+        //$tracksJson = getTopTracks($api);
+        $tracksJson = favoritesTracks($api, 'medium_term');
     } elseif ($swipeMethod === 'playlist') {
         if (isset($_GET['playlist-link'])) {
             $playlistLink = $_GET['playlist-link'];
@@ -277,4 +278,13 @@ try {
 
 <script src="./assets/js/swiper.js"></script>
 
+<script>
+window.onSpotifyWebPlaybackSDKReady = function() {
+    console.log("SDK Ready - delegating to the main implementation");
+    if (typeof initializeSpotifyPlayer === 'function') {
+        initializeSpotifyPlayer();
+    }
+};
+</script>
+<script src="https://sdk.scdn.co/spotify-player.js"></script>
 <?php include "./templates/footer.php"; ?>
