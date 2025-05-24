@@ -19,6 +19,7 @@
                     <li><a href="./favorites.php">Favorites</a></li>
                     <li><a href="./swiper.php">Music Swiper</a></li>
                     <li><a href="./impressum.php">Impressum</a></li>
+                    <li><a href="./privacy-policy.php">Privacy Policy</a></li>
                 </ul>
             </div>
         </div>
@@ -33,7 +34,6 @@
 <script src="./assets/js/logout.js"></script>
 <script src="./assets/js/burger-menu.js"></script>
 <script src="./assets/js/login-cleanup.js"></script>
-<script src="./assets/js/smoothscrolling.js"></script>
 <?php if (isset($additionalScripts)) echo $additionalScripts; ?>
 </body>
 </html>

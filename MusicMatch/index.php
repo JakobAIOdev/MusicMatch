@@ -121,5 +121,6 @@ require_once './includes/spotify_utils.php';
         </div>
     </div>
 </section>
+<script src="./assets/js/smoothscrolling.js"></script>
 <script src="./assets/js/animations.js"></script>
 <?php include "./templates/footer.php";?>

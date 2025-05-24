@@ -32,6 +32,13 @@ h1 span{
     text-align: left;
 }
 
+.profile-img span{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2.3rem;
+}
+
 .action-buttons a {
     background-color: #eee;
 }
