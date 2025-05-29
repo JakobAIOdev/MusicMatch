@@ -6,8 +6,11 @@ composer.lock
 composer.phar
 
 config.php
-impressum.php
-privacy-policy.php
+spotify-debug.php
 
 logs/
 *.log
+
+doc/
+impressum.php
+privacy-policy.php

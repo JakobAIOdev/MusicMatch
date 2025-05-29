@@ -1,7 +1,0 @@
-{
-    "require": {
-        "guzzlehttp/guzzle": "^7.0",
-        "vlucas/phpdotenv": "^5.3",
-        "jwilsson/spotify-web-api-php": "^6.2"
-    }
-}
