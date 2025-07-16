@@ -13,10 +13,6 @@
     // Spotify API credentials
     $CLIENT_ID = "";
     $CLIENT_SECRET = "";
-    
-    // Last.fm API Key
-    $LastFmApiKey = '';
-    $LastFmSharedSecret = '';
 
     define('SPOTIFY_DEV_MODE', true); // Set to false after development
 ?>
